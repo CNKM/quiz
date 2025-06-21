@@ -1,0 +1,595 @@
+<!DOCTYPE html><html lang="zh"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>互动测验页面</title><!-- Font Awesome for icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"><!-- Load the quiz data JavaScript file --><script src="quiz_data.js"></script><style>*,::after,::before{box-sizing:border-box}body,html{height:100%;margin:0;padding:0;overflow:hidden}body{font-family:Inter,sans-serif;background-color:#1a1a1a;color:#e0e0e0;display:flex;height:100vh}::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-track{background:#2a2a2a;border-radius:10px}::-webkit-scrollbar-thumb{background:#555;border-radius:10px;border:2px solid #2a2a2a}::-webkit-scrollbar-thumb:hover{background:#777}html{scrollbar-width:thin;scrollbar-color:#555 #2a2a2a}.quiz-container{display:flex;width:100%;height:100%}#showSidebarIconContainer{background-color:#4caf50;color:#fff;border:none;border-radius:8px;padding:10px 15px;cursor:pointer;font-size:16px;position:fixed;left:20px;top:20px;z-index:1002;transition:background-color .3s ease,transform .2s ease;box-shadow:0 4px 6px rgba(0,0,0,.2);display:none;align-items:center;justify-content:center;width:40px;height:40px}#showSidebarIconContainer:hover{background-color:#45a049;transform:translateY(-2px)}#showSidebarIconContainer i{font-size:20px}.sidebar{width:320px;background-color:#2a2a2a;padding:20px;box-shadow:2px 0 5px rgba(0,0,0,.5);transition:transform .3s ease-in-out;flex-shrink:0;display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100%;border-right:1px solid #333;z-index:1000;transform:translateX(0)}.sidebar.hidden{transform:translateX(-100%)}.sidebar-header{display:flex;flex-direction:column;align-items:flex-start;margin-bottom:15px;flex-shrink:0;padding-left:0;width:100%}.sidebar-header h2{margin:0 0 10px 0;font-size:20px;color:#4caf50;width:100%;display:flex;justify-content:space-between;align-items:center}#hideSidebarIcon{cursor:pointer;font-size:20px;color:#e0e0e0;margin-left:10px;transition:color .2s ease}#hideSidebarIcon:hover{color:#4caf50}.custom-dropdown{position:relative;width:100%;margin-bottom:15px}.dropdown-toggle{display:flex;justify-content:space-between;align-items:center;width:100%;padding:8px 12px;border-radius:8px;border:1px solid #555;background-color:#3a3a3a;color:#e0e0e0;font-size:16px;cursor:pointer;transition:border-color .3s ease,box-shadow .3s ease}.dropdown-toggle:hover{border-color:#4caf50}.dropdown-toggle.active{border-color:#4caf50;box-shadow:0 0 0 2px rgba(76,175,80,.5)}.dropdown-menu{position:absolute;top:100%;left:0;width:100%;background-color:#3a3a3a;border:1px solid #555;border-radius:8px;box-shadow:0 4px 8px rgba(0,0,0,.4);list-style:none;padding:0;margin:5px 0 0 0;z-index:1001;display:none;max-height:200px;overflow-y:auto}.dropdown-menu.show{display:block}.dropdown-menu li{padding:10px 15px;color:#e0e0e0;cursor:pointer;transition:background-color .2s ease,color .2s ease;border-bottom:1px solid #4a4a4a}.dropdown-menu li:last-child{border-bottom:none}.dropdown-menu li:hover{background-color:#4caf50;color:#fff}.dropdown-arrow{transition:transform .2s ease}.dropdown-toggle.active .dropdown-arrow{transform:rotate(180deg)}.sidebar-content{flex-grow:1;padding:0;display:flex;flex-direction:column;padding-right:10px;min-height:0}.quiz-nav{list-style:none;padding:0;margin:0;flex-grow:1;overflow-y:auto}.quiz-nav li{padding:10px 15px;margin-bottom:8px;background-color:#3a3a3a;border-radius:8px;cursor:pointer;transition:background-color .3s ease,color .3s ease;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.quiz-nav li:hover{background-color:#4caf50;color:#fff}.quiz-nav li.active{background-color:#4caf50;color:#fff;font-weight:700}.quiz-nav li.completed{background-color:#28a745;color:#fff;opacity:.8}.main-content{flex-grow:1;display:flex;flex-direction:column;padding:20px;position:relative;overflow-y:auto;margin-left:340px;transition:margin-left .3s ease-in-out;align-items:center;justify-content:flex-start}body.sidebar-hidden .main-content{margin-left:20px}.main-content-inner-wrapper{display:flex;flex-direction:row;gap:20px;width:100%;max-width:1800px;align-items:flex-start;flex-wrap:wrap;height:100%}.quiz-content-panel{flex:2.5;min-width:450px;background-color:#2a2a2a;padding:25px;border-radius:12px;box-shadow:0 4px 8px rgba(0,0,0,.3);display:flex;flex-direction:column;max-height:calc(100% - 0px)}.quiz-interaction-panel{flex:3;min-width:400px;display:flex;flex-direction:column;gap:20px;background-color:#2a2a2a;padding:25px;border-radius:12px;box-shadow:0 4px 8px rgba(0,0,0,.3);max-height:calc(100% - 0px)}#quiz-title{font-size:24px;color:#4caf50;margin-bottom:10px;border-bottom:2px solid #4caf50;padding-bottom:10px;flex-shrink:0}#quiz-type{font-size:16px;color:#a0a0a0;margin-bottom:15px;flex-shrink:0}#question-text-scroll-wrapper{flex-grow:1;overflow-y:auto;padding-right:10px;display:flex;flex-direction:column;gap:15px}.question-content{font-size:18px;line-height:1.6;white-space:pre-wrap;margin-bottom:0;color:#e0e0e0;flex-grow:1}.question-content .question-num-in-text{color:#87ceeb;text-decoration:underline;font-weight:700;cursor:pointer;background-color:rgba(69,160,73,.2);padding:2px 4px;border-radius:4px;display:inline-block}.question-content .question-num-in-text:hover{color:#add8e6}.controls{display:flex;flex-wrap:wrap;gap:15px;align-items:center;padding-top:0;border-top:none}.control-button{background-color:#4caf50;color:#fff;border:none;border-radius:8px;padding:12px 25px;cursor:pointer;font-size:18px;transition:background-color .3s ease,transform .2s ease,box-shadow .3s ease;box_shadow:0 4px 6px rgba(0,0,0,.2);flex-shrink:0}.control-button:hover:not(:disabled){background-color:#45a049;transform:translateY(-2px);box-shadow:0 6px 10px rgba(0,0,0,.3)}.control-button:disabled{background-color:#555;cursor:not-allowed;opacity:.6}.score-display,.timer-display{font-size:18px;color:#4caf50;background-color:#3a3a3a;padding:10px 20px;border-radius:8px;min-width:150px;text-align:center;box-shadow:inset 0 2px 4px rgba(0,0,0,.2)}.options-container{flex-grow:1;overflow-y:auto;min-height:100px;display:flex;flex-direction:column;gap:15px;padding:0}.question-block{background-color:#3a3a3a;padding:15px;border-radius:8px;border:1px solid transparent;transition:border-color .3s ease}.question-sub-title{font-weight:700;font-size:1.1em;margin-bottom:10px;color:#87ceeb}.choices-wrapper{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;align-items:stretch;box-sizing:border-box}.choice-item{background-color:#444;padding:12px 15px;border-radius:6px;cursor:pointer;transition:background-color .3s ease,border-color .3s ease;border:1px solid #555;display:flex;align-items:center;font-size:16px;box-sizing:border-box;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}@media (max-width:1100px){.choices-wrapper{grid-template-columns:repeat(3,minmax(0,1fr))}}@media (max-width:900px){.choices-wrapper{grid-template-columns:repeat(2,minmax(0,1fr))}}@media (max-width:700px){.choices-wrapper{grid-template-columns:repeat(1,minmax(0,1fr))}}.choice-item:hover:not(.disabled):not(.selected-choice):not(.correct-choice):not(.incorrect-choice){background-color:#555;border-color:#4caf50}.choice-item.selected-choice{background-color:#4caf50;border-color:#32cd32;color:#fff}.choice-item.correct-choice{background-color:#28a745;border-color:#28a745;color:#fff;box-shadow:0 0 8px rgba(40,167,69,.5)}.choice-item.incorrect-choice{background-color:#dc3545;border-color:#dc3545;color:#fff;box-shadow:0 0 8px rgba(220,53,69,.5)}.choice-item.disabled{cursor:not-allowed;opacity:.7;pointer-events:none}.question-explanation{margin-top:15px;padding-top:10px;border-top:1px dashed #555;font-size:15px;line-height:1.5;color:silver}.question-explanation .your-answer{font-weight:700;color:#87ceeb}.question-explanation .correct-answer{font-weight:700;color:#28a745}.explanation-icon{margin-right:8px;font-size:1.2em;vertical-align:middle}@media (max-width:1024px){.main-content-inner-wrapper{flex-direction:column;max-width:700px;width:100%;height:auto}.quiz-content-panel,.quiz-interaction-panel{max-height:none;flex:none;width:100%;min-width:unset}.options-container{max-height:400px}}@media (max-width:768px){.sidebar{width:250px;position:fixed;height:100%;top:0;left:0;z-index:999;padding-top:0;transform:translateX(0)}.sidebar.hidden{left:-250px;width:0;transform:translateX(0)}#showSidebarIconContainer{position:fixed;left:10px;top:10px;padding:10px 15px;font-size:16px}.main-content{margin-left:0;padding:15px}body.sidebar-hidden .main-content{margin-left:0}body:not(.sidebar-hidden) .main-content{margin-left:250px}.quiz-content-panel,.quiz-interaction-panel{padding:20px}}@media (max-width:480px){.sidebar{width:100%;left:0}.sidebar.hidden{left:-100%}.controls{flex-direction:column;align-items:stretch}.control-button,.score-display,.timer-display{width:100%;text-align:center}.quiz-content-panel,.quiz-interaction-panel{padding:15px}.options-container{max-height:300px}}</style></head><body><!-- 侧边栏隐藏时显示的图标容器，初始隐藏 --> <button id="showSidebarIconContainer"><i class="fas fa-chevron-circle-right"></i><!-- 菜单图标 --></button><div class="quiz-container"><!-- Sidebar Navigation --><div id="sidebar" class="sidebar"><div class="sidebar-header"><h2>测验导航 <i id="hideSidebarIcon" class="fas fa-chevron-circle-left"></i></h2><!-- Custom Type Filter Dropdown --><div class="custom-dropdown" id="custom-quiz-type-filter"><div class="dropdown-toggle" id="quiz-type-toggle"><span id="selected-quiz-type">全部题型</span> <i class="fas fa-chevron-down dropdown-arrow"></i></div><ul class="dropdown-menu" id="quiz-type-menu"><!-- Options will be populated by JavaScript --></ul></div></div><div class="sidebar-content"><ul id="quiz-nav" class="quiz-nav"><!-- Quiz titles will be inserted here by JavaScript --></ul></div></div><!-- Main Content Area --><div class="main-content"><div class="main-content-inner-wrapper"><!-- NEW INNER WRAPPER for horizontal layout --><!-- Left Panel: Question Text --><div class="quiz-content-panel"><h2 id="quiz-title"></h2><div id="quiz-type"></div><div id="question-text-scroll-wrapper"><!-- New wrapper for just the scrollable content --><p id="quiz-content" class="question-content"></p></div></div><!-- Right Panel: Controls and Options --><div class="quiz-interaction-panel"><div class="controls"><button id="start-quiz-btn" class="control-button">开始作答</button><div id="timer" class="timer-display">时间: 00:00</div><div id="score-display" class="score-display">正确率: 0/0 (0%)</div><button id="submit-quiz-btn" class="control-button">交卷</button></div><div id="options-container" class="options-container"><!-- Question blocks and choices will be inserted here by JavaScript --></div></div></div></div></div><script>// QuizApp Class to encapsulate all quiz logic and state
+        class QuizApp {
+            constructor() {
+                // DOM Elements
+                this.body = document.body;
+                this.sidebar = document.getElementById('sidebar');
+                this.showSidebarIconContainer = document.getElementById('showSidebarIconContainer');
+                this.hideSidebarIcon = document.getElementById('hideSidebarIcon');
+                this.quizNav = document.getElementById('quiz-nav');
+                
+                // Custom Dropdown Elements
+                this.customQuizTypeFilter = document.getElementById('custom-quiz-type-filter');
+                this.quizTypeToggle = document.getElementById('quiz-type-toggle');
+                this.selectedQuizTypeSpan = document.getElementById('selected-quiz-type');
+                this.quizTypeMenu = document.getElementById('quiz-type-menu');
+                this.dropdownArrow = this.quizTypeToggle.querySelector('.dropdown-arrow');
+
+
+                this.quizTitleElement = document.getElementById('quiz-title');
+                this.quizTypeElement = document.getElementById('quiz-type');
+                this.quizContentElement = document.getElementById('quiz-content');
+                this.optionsContainer = document.getElementById('options-container');
+                this.startQuizBtn = document.getElementById('start-quiz-btn');
+                this.submitQuizBtn = document.getElementById('submit-quiz-btn');
+                this.timerDisplay = document.getElementById('timer');
+                this.scoreDisplay = document.getElementById('score-display');
+
+                // State Variables
+                this.currentQuizIndex = 0;
+                this.userAnswers = {};
+                this.timerInterval = null;
+                this.startTime = null;
+                this.quizStarted = false;
+                this.quizSubmitted = false;
+                this.quizScores = {};
+                this.selectedQuizType = 'all'; // Keep track of the selected filter type
+            }
+
+            /**
+             * Initializes the Quiz Application.
+             * Sets up event listeners and loads the initial quiz.
+             */
+            init() {
+                // Check if quizData is loaded
+                if (typeof quizData === 'undefined') {
+                    console.error("Error: quiz_data.js not loaded. Please ensure the file is in the same directory and loaded correctly.");
+                    return;
+                }
+
+                this.addEventListeners();
+                this.populateTypeFilter();
+                this.loadQuizNavigation();
+
+                // Set initial sidebar state (assuming open by default)
+                this.body.classList.remove('sidebar-hidden');
+                this.sidebar.classList.remove('hidden');
+                this.showSidebarIconContainer.style.display = 'none';
+            }
+
+            /**
+             * Adds all necessary event listeners to DOM elements.
+             */
+            addEventListeners() {
+                this.showSidebarIconContainer.addEventListener('click', this.toggleSidebar.bind(this));
+                this.hideSidebarIcon.addEventListener('click', this.toggleSidebar.bind(this));
+
+                this.startQuizBtn.addEventListener('click', this.startQuiz.bind(this));
+                this.submitQuizBtn.addEventListener('click', this.handleSubmitReattempt.bind(this));
+                
+                // Event listeners for custom dropdown
+                this.quizTypeToggle.addEventListener('click', this.toggleDropdown.bind(this));
+                // Close dropdown if clicked outside
+                document.addEventListener('click', (event) => {
+                    if (!this.customQuizTypeFilter.contains(event.target)) {
+                        this.hideDropdown();
+                    }
+                });
+            }
+
+            /**
+             * Toggles the visibility of the sidebar.
+             */
+            toggleSidebar() {
+                this.sidebar.classList.toggle('hidden');
+                this.body.classList.toggle('sidebar-hidden');
+                
+                if (this.sidebar.classList.contains('hidden')) {
+                    this.showSidebarIconContainer.style.display = 'flex';
+                } else {
+                    this.showSidebarIconContainer.style.display = 'none';
+                }
+            }
+
+            /**
+             * Toggles the visibility of the custom dropdown menu.
+             */
+            toggleDropdown() {
+                this.quizTypeMenu.classList.toggle('show');
+                this.quizTypeToggle.classList.toggle('active');
+            }
+
+            /**
+             * Hides the custom dropdown menu.
+             */
+            hideDropdown() {
+                this.quizTypeMenu.classList.remove('show');
+                this.quizTypeToggle.classList.remove('active');
+            }
+
+            /**
+             * Populates the custom dropdown menu with unique quiz types.
+             */
+            populateTypeFilter() {
+                const types = new Set();
+                quizData.questions.forEach(quiz => {
+                    if (quiz.type) {
+                        types.add(quiz.type);
+                    }
+                });
+
+                this.quizTypeMenu.innerHTML = ''; // Clear existing menu items
+
+                // Add "All Types" option
+                const allOption = document.createElement('li');
+                allOption.textContent = '全部题型';
+                allOption.dataset.value = 'all';
+                allOption.addEventListener('click', () => this.selectDropdownOption('all', '全部题型'));
+                this.quizTypeMenu.appendChild(allOption);
+
+                // Add unique types
+                types.forEach(type => {
+                    const option = document.createElement('li');
+                    option.textContent = type;
+                    option.dataset.value = type;
+                    option.addEventListener('click', () => this.selectDropdownOption(type, type));
+                    this.quizTypeMenu.appendChild(option);
+                });
+            }
+
+            /**
+             * Handles the selection of a custom dropdown option.
+             * @param {string} value - The data value of the selected option.
+             * @param {string} text - The display text of the selected option.
+             */
+            selectDropdownOption(value, text) {
+                this.selectedQuizTypeSpan.textContent = text;
+                this.selectedQuizType = value; // Update the state variable
+                this.hideDropdown();
+                this.filterQuizNavigation(); // Apply the filter
+            }
+
+            /**
+             * Filters the quiz navigation list based on the selected type from the custom dropdown.
+             */
+            filterQuizNavigation() {
+                this.loadQuizNavigation(this.selectedQuizType); // Use the stored selected type
+            }
+
+            /**
+             * Loads and displays the quiz navigation list, optionally filtered by type.
+             * @param {string} filterType - The type to filter by, or 'all' for no filter.
+             */
+            loadQuizNavigation(filterType = 'all') {
+                this.quizNav.innerHTML = '';
+                const filteredQuizzes = quizData.questions.filter(quiz => {
+                    return filterType === 'all' || quiz.type === filterType;
+                });
+
+                if (filteredQuizzes.length === 0 && quizData.questions.length > 0) {
+                    this.selectedQuizType = 'all'; // Reset filter if no results
+                    this.selectedQuizTypeSpan.textContent = '全部题型';
+                    this.loadQuizNavigation('all');
+                    return;
+                }
+                if (filteredQuizzes.length === 0) {
+                    const noQuizzesItem = document.createElement('li');
+                    noQuizzesItem.textContent = '没有可用的测验';
+                    noQuizzesItem.style.cursor = 'default';
+                    noQuizzesItem.style.opacity = '0.7';
+                    this.quizNav.appendChild(noQuizzesItem);
+                    this.quizTitleElement.textContent = '';
+                    this.quizTypeElement.textContent = '';
+                    this.quizContentElement.innerHTML = '';
+                    this.optionsContainer.innerHTML = '';
+                    this.startQuizBtn.disabled = true;
+                    this.submitQuizBtn.disabled = true;
+                    this.scoreDisplay.textContent = '正确率: 0/0 (0%)';
+                    this.timerDisplay.textContent = '时间: 00:00';
+                    return;
+                }
+
+                filteredQuizzes.forEach((quiz, index) => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `${index + 1}. ${quiz.title}`;
+                    listItem.dataset.index = quizData.questions.indexOf(quiz);
+                    listItem.title = quiz.title;
+                    listItem.addEventListener('click', () => {
+                        this.loadQuiz(parseInt(listItem.dataset.index));
+                    });
+                    this.quizNav.appendChild(listItem);
+                });
+
+                let targetQuizIndex = this.currentQuizIndex;
+                const currentQuizExistsInFiltered = filteredQuizzes.some(q => quizData.questions.indexOf(q) === targetQuizIndex);
+
+                if (!currentQuizExistsInFiltered && filteredQuizzes.length > 0) {
+                    targetQuizIndex = quizData.questions.indexOf(filteredQuizzes[0]);
+                } else if (filteredQuizzes.length === 0) {
+                     targetQuizIndex = -1;
+                }
+
+                if (targetQuizIndex !== -1) {
+                    this.loadQuiz(targetQuizIndex);
+                } else {
+                    this.quizTitleElement.textContent = '';
+                    this.quizTypeElement.textContent = '';
+                    this.quizContentElement.innerHTML = '';
+                    this.optionsContainer.innerHTML = '';
+                    this.startQuizBtn.disabled = true;
+                    this.submitQuizBtn.disabled = true;
+                    this.scoreDisplay.textContent = '正确率: 0/0 (0%)';
+                    this.timerDisplay.textContent = '时间: 00:00';
+                }
+            }
+
+            /**
+             * Loads and displays a specific quiz based on its original index in quizData.questions.
+             * @param {number} originalIndex - The original index of the quiz in quizData.questions.
+             */
+            loadQuiz(originalIndex) {
+                clearInterval(this.timerInterval);
+                this.timerInterval = null;
+                this.startTime = null;
+                this.quizStarted = false;
+                this.quizSubmitted = false;
+                this.userAnswers = {};
+
+                this.currentQuizIndex = originalIndex;
+                const currentQuiz = quizData.questions[this.currentQuizIndex];
+
+                Array.from(this.quizNav.children).forEach(li => {
+                    li.classList.remove('active');
+                    if (parseInt(li.dataset.index) === this.currentQuizIndex) {
+                        li.classList.add('active');
+                    }
+                });
+
+                this.quizTitleElement.textContent = currentQuiz.title;
+                this.quizTypeElement.textContent = `类型: ${currentQuiz.type}`;
+                
+                let formattedContent = currentQuiz.content;
+                currentQuiz.options.forEach((option, optionIndex) => {
+                    const questionNumMatch = option.question.match(/\d+/);
+                    if (questionNumMatch) {
+                        const questionNum = questionNumMatch[0];
+                        const regex = new RegExp(`(?<!<span[^>]*?>)(\\b${questionNum}[\\.\\uff0e)]?)(?!<\\/span>)`, 'g');
+                        if (option.question.includes('（') && option.question.includes('）')) {
+                            const escapedFullQuestion = this.escapeRegExp(option.question);
+                            const fullMatchRegex = new RegExp(`(?<!<span[^>]*?>)(${escapedFullQuestion})(?!<\\/span>)`, 'g');
+                            formattedContent = formattedContent.replace(fullMatchRegex, `<span class="question-num-in-text" data-qindex="${optionIndex}">$&</span>`);
+                        } else {
+                            formattedContent = formattedContent.replace(regex, `<span class="question-num-in-text" data-qindex="${optionIndex}">$&</span>`);
+                        }
+                    }
+                });
+                this.quizContentElement.innerHTML = formattedContent;
+
+
+                this.optionsContainer.innerHTML = '';
+                this.scoreDisplay.textContent = '正确率: 0/0 (0%)';
+                this.timerDisplay.textContent = '时间: 00:00';
+
+                currentQuiz.options.forEach((option, optionIndex) => {
+                    const questionBlockDiv = document.createElement('div');
+                    questionBlockDiv.classList.add('question-block');
+                    questionBlockDiv.dataset.questionIndex = optionIndex;
+                    questionBlockDiv.dataset.correctAnswer = option.answer;
+
+                    const questionSubTitle = document.createElement('div');
+                    questionSubTitle.classList.add('question-sub-title');
+                    questionSubTitle.textContent = option.question;
+
+                    const choicesWrapper = document.createElement('div');
+                    choicesWrapper.classList.add('choices-wrapper');
+
+                    Object.keys(option.choices).forEach(choiceKey => {
+                        const choiceItemDiv = document.createElement('div');
+                        choiceItemDiv.classList.add('choice-item');
+                        choiceItemDiv.dataset.choice = choiceKey;
+                        choiceItemDiv.textContent = `${choiceKey}. ${option.choices[choiceKey]}`;
+                        choicesWrapper.appendChild(choiceItemDiv);
+
+                        choiceItemDiv.addEventListener('click', () => {
+                            if (!this.quizStarted || this.quizSubmitted) return;
+                            this.selectOption(optionIndex, choiceKey, questionBlockDiv);
+                        });
+                    });
+
+                    const questionExplanationDiv = document.createElement('div');
+                    questionExplanationDiv.classList.add('question-explanation');
+                    questionExplanationDiv.style.display = 'none';
+
+                    questionBlockDiv.appendChild(questionSubTitle);
+                    questionBlockDiv.appendChild(choicesWrapper);
+                    questionBlockDiv.appendChild(questionExplanationDiv);
+                    this.optionsContainer.appendChild(questionBlockDiv);
+                });
+
+                this.disableOptions();
+                this.startQuizBtn.disabled = false;
+                this.submitQuizBtn.disabled = true;
+                this.submitQuizBtn.textContent = '交卷';
+
+                if (this.quizScores[currentQuiz.id]) {
+                    this.applySubmittedState();
+                }
+            }
+
+            /**
+             * Starts the quiz timer and enables options.
+             */
+            startQuiz() {
+                if (this.quizStarted) return;
+                this.quizStarted = true;
+                this.startTime = Date.now();
+                this.timerInterval = setInterval(this.updateTimer.bind(this), 1000);
+                this.startQuizBtn.disabled = true;
+                this.submitQuizBtn.disabled = false;
+                this.submitQuizBtn.textContent = '交卷';
+                this.enableOptions();
+                this.scoreDisplay.textContent = '正确率: 未作答';
+
+                if (!this.sidebar.classList.contains('hidden')) {
+                    this.sidebar.classList.add('hidden');
+                    this.body.classList.add('sidebar-hidden');
+                    this.showSidebarIconContainer.style.display = 'flex';
+                }
+            }
+
+            /**
+             * Updates the timer display every second.
+             */
+            updateTimer() {
+                const elapsedTime = Date.now() - this.startTime;
+                const minutes = Math.floor(elapsedTime / 60000);
+                const seconds = Math.floor((elapsedTime % 60000) / 1000);
+                this.timerDisplay.textContent = `时间: ${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            }
+
+            /**
+             * Enables all quiz options for user selection.
+             */
+            enableOptions() {
+                this.optionsContainer.querySelectorAll('.choice-item').forEach(choiceItem => {
+                    choiceItem.classList.remove('disabled');
+                });
+            }
+
+            /**
+             * Disables all quiz options and hides explanations.
+             */
+            disableOptions() {
+                this.optionsContainer.querySelectorAll('.choice-item').forEach(choiceItem => {
+                    choiceItem.classList.add('disabled');
+                    choiceItem.classList.remove('selected-choice', 'correct-choice', 'incorrect-choice');
+                });
+                this.optionsContainer.querySelectorAll('.question-explanation').forEach(explanationDiv => {
+                    explanationDiv.style.display = 'none';
+                });
+                this.quizContentElement.querySelectorAll('.question-num-in-text').forEach(span => {
+                    span.classList.remove('highlighted-question-num');
+                });
+            }
+
+            /**
+             * Handles the selection of an option for a question.
+             * @param {number} questionIndex - The index of the question.
+             * @param {string} selectedChoice - The key of the selected choice (e.g., 'A', 'B').
+             * @param {HTMLElement} questionBlockDiv - The DOM element for the current question block.
+             */
+            selectOption(questionIndex, selectedChoice, questionBlockDiv) {
+                questionBlockDiv.querySelectorAll('.choice-item').forEach(choiceElement => {
+                    choiceElement.classList.remove('selected-choice');
+                });
+
+                const selectedChoiceElement = questionBlockDiv.querySelector(`.choice-item[data-choice="${selectedChoice}"]`);
+                if (selectedChoiceElement) {
+                    selectedChoiceElement.classList.add('selected-choice');
+                }
+
+                this.userAnswers[questionIndex] = selectedChoice;
+
+                this.quizContentElement.querySelectorAll('.question-num-in-text').forEach(span => {
+                    if (parseInt(span.dataset.qindex) === questionIndex) {
+                        span.classList.add('highlighted-question-num');
+                    } else {
+                        span.classList.remove('highlighted-question-num');
+                    }
+                });
+                questionBlockDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+
+            /**
+             * Handles quiz submission or re-attempt logic.
+             */
+            handleSubmitReattempt() {
+                const currentQuiz = quizData.questions[this.currentQuizIndex];
+
+                if (!this.quizStarted) {
+                    return;
+                }
+
+                if (!this.quizSubmitted) {
+                    // Logic for Initial Submission
+                    clearInterval(this.timerInterval);
+                    this.quizSubmitted = true;
+                    this.submitQuizBtn.disabled = true;
+                    this.startQuizBtn.disabled = true;
+                    this.disableOptions();
+
+                    let correctCount = 0;
+                    const totalQuestions = currentQuiz.options.length;
+
+                    this.quizContentElement.querySelectorAll('.question-num-in-text').forEach(span => {
+                        span.classList.remove('highlighted-question-num');
+                    });
+
+                    this.optionsContainer.querySelectorAll('.question-block').forEach(questionBlockDiv => {
+                        const questionIndex = parseInt(questionBlockDiv.dataset.questionIndex);
+                        const correctAnswer = questionBlockDiv.dataset.correctAnswer;
+                        const userAnswer = this.userAnswers[questionIndex];
+                        const optionData = currentQuiz.options[questionIndex];
+                        const fullExplanation = optionData.explanation;
+
+                        const questionExplanationDiv = questionBlockDiv.querySelector('.question-explanation');
+                        questionExplanationDiv.innerHTML = '';
+                        let explanationContent = `<div class="explanation-item">`;
+
+                        let isCorrect = false;
+                        let userHasAnswered = (userAnswer !== undefined && userAnswer !== null);
+
+                        questionBlockDiv.querySelectorAll('.choice-item').forEach(choiceElement => {
+                            const choiceKey = choiceElement.dataset.choice;
+                            choiceElement.classList.remove('selected-choice', 'correct-choice', 'incorrect-choice');
+
+                            if (userHasAnswered && String(userAnswer) === String(choiceKey)) {
+                                if (String(userAnswer) === String(correctAnswer)) {
+                                    choiceElement.classList.add('correct-choice');
+                                    isCorrect = true;
+                                } else {
+                                    choiceElement.classList.add('incorrect-choice');
+                                }
+                            } else if (String(choiceKey) === String(correctAnswer)) {
+                                choiceElement.classList.add('correct-choice');
+                            }
+                        });
+
+                        if (userHasAnswered) {
+                            if (isCorrect) {
+                                explanationContent += `你的答案: <span class="your-answer">${userAnswer}. ${optionData.choices[userAnswer]}</span> <i class="fas fa-check-circle explanation-icon" style="color: #28a745;"></i> (正确)<br>`;
+                                correctCount++;
+                            } else {
+                                explanationContent += `你的答案: <span class="your-answer">${userAnswer}. ${optionData.choices[userAnswer]}</span> <i class="fas fa-times-circle explanation-icon" style="color: #dc3545;"></i> (错误)<br>`;
+                                explanationContent += `正确答案: <span class="correct-answer">${correctAnswer}. ${optionData.choices[correctAnswer]}</span><br>`;
+                            }
+                        } else {
+                            explanationContent += `你的答案: <span class="your-answer">未作答</span> <i class="fas fa-times-circle explanation-icon" style="color: #dc3545;"></i> (错误)<br>`;
+                            explanationContent += `正确答案: <span class="correct-answer">${correctAnswer}. ${optionData.choices[correctAnswer]}</span><br>`;
+                        }
+
+                        explanationContent += `<span class="explanation-text">解析: ${fullExplanation}</span></div>`;
+                        questionExplanationDiv.innerHTML = explanationContent;
+                        questionExplanationDiv.style.display = 'block';
+                    });
+
+                    // Calculate and display score
+                    const accuracyPercentage = totalQuestions === 0 ? 0 : ((correctCount / totalQuestions) * 100).toFixed(2);
+                    this.scoreDisplay.textContent = `正确率: ${correctCount}/${totalQuestions} (${accuracyPercentage}%)`;
+
+                    // Mark quiz as completed in navigation
+                    const navItem = this.quizNav.querySelector(`li[data-index="${this.currentQuizIndex}"]`);
+                    if (navItem) {
+                        navItem.classList.add('completed');
+                    }
+
+                    // Store score and user answers for the main quiz ID
+                    this.quizScores[currentQuiz.id] = {
+                        correct: correctCount,
+                        total: totalQuestions,
+                        percentage: accuracyPercentage,
+                        time: this.timerDisplay.textContent,
+                        userAnswers: { ...this.userAnswers }
+                    };
+
+                    // After submission, enable submit button and change its text for re-attempt
+                    this.submitQuizBtn.disabled = false;
+                    this.submitQuizBtn.textContent = '重新作答';
+
+                } else {
+                    // Logic for Re-attempt after Submission
+                    delete this.quizScores[currentQuiz.id];
+                    const navItem = this.quizNav.querySelector(`li[data-index="${this.currentQuizIndex}"]`);
+                    if (navItem) {
+                        navItem.classList.remove('completed');
+                    }
+                    this.loadQuiz(this.currentQuizIndex); // Reload the current quiz to reset everything
+                }
+            }
+
+            /**
+             * Applies the visual state for a previously submitted quiz.
+             */
+            applySubmittedState() {
+                this.quizSubmitted = true;
+                this.startQuizBtn.disabled = true;
+                this.submitQuizBtn.disabled = true;
+                this.submitQuizBtn.textContent = '重新作答';
+                this.disableOptions();
+
+                const currentQuiz = quizData.questions[this.currentQuizIndex];
+                const savedScore = this.quizScores[currentQuiz.id];
+
+                if (savedScore) {
+                    this.scoreDisplay.textContent = `正确率: ${savedScore.correct}/${savedScore.total} (${savedScore.percentage}%)`;
+                    this.timerDisplay.textContent = savedScore.time;
+
+                    this.quizContentElement.querySelectorAll('.question-num-in-text').forEach(span => {
+                        span.classList.remove('highlighted-question-num');
+                    });
+
+                    this.optionsContainer.querySelectorAll('.question-block').forEach(questionBlockDiv => {
+                        const questionIndex = parseInt(questionBlockDiv.dataset.questionIndex);
+                        const correctAnswer = questionBlockDiv.dataset.correctAnswer;
+                        const userAnswer = savedScore.userAnswers ? savedScore.userAnswers[questionIndex] : undefined;
+                        const optionData = currentQuiz.options[questionIndex];
+                        const fullExplanation = optionData.explanation;
+
+                        const questionExplanationDiv = questionBlockDiv.querySelector('.question-explanation');
+                        questionExplanationDiv.innerHTML = '';
+                        let explanationContent = `<div class="explanation-item">`;
+
+                        let isCorrect = false;
+                        let userHasAnswered = (userAnswer !== undefined && userAnswer !== null);
+
+                        questionBlockDiv.querySelectorAll('.choice-item').forEach(choiceElement => {
+                            const choiceKey = choiceElement.dataset.choice;
+                            choiceElement.classList.remove('selected-choice', 'correct-choice', 'incorrect-choice');
+
+                            if (userHasAnswered && String(userAnswer) === String(choiceKey)) {
+                                if (String(userAnswer) === String(correctAnswer)) {
+                                    choiceElement.classList.add('correct-choice');
+                                    isCorrect = true;
+                                } else {
+                                    choiceElement.classList.add('incorrect-choice');
+                                }
+                            } else if (String(choiceKey) === String(correctAnswer)) {
+                                choiceElement.classList.add('correct-choice');
+                            }
+                        });
+
+                        if (userHasAnswered) {
+                            if (isCorrect) {
+                                explanationContent += `你的答案: <span class="your-answer">${userAnswer}. ${optionData.choices[userAnswer]}</span> <i class="fas fa-check-circle explanation-icon" style="color: #28a745;"></i> (正确)<br>`;
+                            } else {
+                                explanationContent += `你的答案: <span class="your-answer">${userAnswer}. ${optionData.choices[userAnswer]}</span> <i class="fas fa-times-circle explanation-icon" style="color: #dc3545;"></i> (错误)<br>`;
+                                explanationContent += `正确答案: <span class="correct-answer">${correctAnswer}. ${optionData.choices[correctAnswer]}</span><br>`;
+                            }
+                        } else {
+                            explanationContent += `你的答案: <span class="your-answer">未作答</span> <i class="fas fa-times-circle explanation-icon" style="color: #dc3545;"></i> (错误)<br>`;
+                            explanationContent += `正确答案: <span class="correct-answer">${correctAnswer}. ${optionData.choices[correctAnswer]}</span><br>`;
+                        }
+
+                        explanationContent += `<span class="explanation-text">解析: ${fullExplanation}</span></div>`;
+                        questionExplanationDiv.innerHTML = explanationContent;
+                        questionExplanationDiv.style.display = 'block';
+                    });
+                    this.submitQuizBtn.disabled = false;
+                }
+            }
+
+            /**
+             * Helper function to escape special characters in a string for use in a RegExp.
+             * @param {string} string - The string to escape.
+             * @returns {string} The escaped string.
+             */
+            escapeRegExp(string) {
+                return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            }
+        }
+
+        // Initialize the QuizApp when the DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            const app = new QuizApp();
+            app.init();
+        });</script></body></html>
