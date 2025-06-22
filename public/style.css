@@ -969,3 +969,14 @@ body.sidebar-hidden .main-content {
         font-size: 12px;
     }
 }
+
+/* 正确率分色：高分绿色，中分橙色，低分红色，仅用于作答区域 */
+.score-high {
+    color: #28a745 !important; /* 绿色 */
+}
+.score-mid {
+    color: #ff9800 !important; /* 橙色 */
+}
+.score-low {
+    color: #dc3545 !important; /* 红色 */
+}

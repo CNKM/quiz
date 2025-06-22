@@ -1275,6 +1275,15 @@ class QuizApp {
             // Calculate and display overall score
             const accuracyPercentage = totalQuestions === 0 ? 0 : ((correctCount / totalQuestions) * 100).toFixed(2);
             this.scoreDisplay.textContent = `正确率: ${correctCount}/${totalQuestions} (${accuracyPercentage}%)`;
+            // 仅设置字体颜色，不更改其他内容
+            this.scoreDisplay.classList.remove('score-high', 'score-mid', 'score-low');
+            if (accuracyPercentage >= 90) {
+                this.scoreDisplay.classList.add('score-high');
+            } else if (accuracyPercentage >= 60) {
+                this.scoreDisplay.classList.add('score-mid');
+            } else {
+                this.scoreDisplay.classList.add('score-low');
+            }
 
             // Mark quiz as completed in navigation
             const navItem = this.quizNav.querySelector(`li[data-original-index="${this.currentQuizIndex}"]`);

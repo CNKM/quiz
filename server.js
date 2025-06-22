@@ -15,5 +15,4 @@ app.use(express.static('public'));
 app.listen(port, () => {
     // 服务器成功启动后在控制台输出提示信息
     console.log(`Server running at http://localhost:${port}`);
-    console.log(`Open your quiz app at http://localhost:${port}/index.html`);
 });
