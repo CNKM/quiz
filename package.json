@@ -1,0 +1,24 @@
+{
+  "name": "quiz",
+  "version": "1.0.0",
+  "description": "- [项目介绍](#项目介绍)\r - [主要页面预览](#主要页面预览)\r - [功能概述](#功能概述)\r - [主要功能说明](#主要功能说明)\r - [新架构（new 目录）说明](#新架构new-目录说明)\r - [数据结构与多题型支持](#数据结构与多题型支持)\r - [技术栈](#技术栈)\r - [未来扩展性](#未来扩展性)",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CNKM/quiz.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/CNKM/quiz/issues"
+  },
+  "homepage": "https://github.com/CNKM/quiz#readme",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
