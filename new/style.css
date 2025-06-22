@@ -1,0 +1,970 @@
+/* Global box-sizing for consistent layout */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+/* Ensure html and body take full viewport height */
+html, body {
+    height: 100%; /* Ensure html takes full height */
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* Keep original overflow: hidden on body */
+}
+
+/* General body styling for black and green theme */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #1a1a1a; /* Dark background */
+    color: #e0e0e0; /* Light text color */
+    display: flex; /* Use flexbox for main layout */
+    height: 100vh; /* Full viewport height */
+}
+
+/* Custom Scrollbar Styles for WebKit browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+    width: 8px; /* Vertical scrollbar width */
+    height: 8px; /* Horizontal scrollbar height */
+}
+
+::-webkit-scrollbar-track {
+    background: #2a2a2a; /* Scrollbar track background */
+    border-radius: 10px; /* Rounded corners for the track */
+}
+
+::-webkit-scrollbar-thumb {
+    background: #555; /* Scrollbar thumb color */
+    border-radius: 10px; /* Rounded corners for the thumb */
+    border: 2px solid #2a2a2a; /* Border around the thumb, matching track background */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #777; /* Scrollbar thumb color on hover */
+}
+
+/* Custom Scrollbar Styles for Firefox */
+html {
+    scrollbar-width: thin; /* "auto" or "thin" */
+    scrollbar-color: #555 #2a2a2a; /* thumb color track color */
+}
+
+
+/* Main container for the quiz layout */
+.quiz-container {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+/* Sidebar Toggle Button - Moved outside the sidebar again, fixed */
+/* This button will only be used to SHOW the sidebar when it's hidden */
+#showSidebarIconContainer {
+    background-color: #4CAF50; /* Green button */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 15px; /* Larger padding for prominent fixed button */
+    cursor: pointer;
+    font-size: 16px; /* Larger font size */
+    position: fixed; /* Keep it fixed */
+    left: 20px; /* Fixed position from left */
+    top: 20px; /* Fixed position from top */
+    z-index: 1002; /* Ensure it's above other content */
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    display: none; /* Initially hidden */
+    align-items: center; /* Center icon vertically */
+    justify-content: center; /* Center icon horizontally */
+    width: 40px; /* Make it a square button */
+    height: 40px;
+}
+
+#showSidebarIconContainer:hover {
+    background-color: #45a049;
+    transform: translateY(-2px);
+}
+
+#showSidebarIconContainer i {
+    font-size: 20px; /* Adjust icon size within the button */
+}
+
+
+/* Left sidebar navigation */
+.sidebar {
+    width: 320px; /* Increased default width for better text display */
+    background-color: #2a2a2a; /* Slightly lighter dark for sidebar */
+    padding: 20px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s ease-in-out; /* Smooth transition for hide/show */
+    flex-shrink: 0; /* Prevent shrinking */
+    display: flex;
+    flex-direction: column; /* Arrange header and content vertically */
+    position: fixed; /* Fixed to prevent content jumping */
+    top: 0;
+    left: 0;
+    height: 100%; /* Make sidebar take 100% height of its parent (html/body flex context) */
+    border-right: 1px solid #333;
+    z-index: 1000;
+    transform: translateX(0); /* Default position */
+}
+
+.sidebar.hidden {
+    transform: translateX(-100%); /* Move off-screen to the left */
+}
+
+.sidebar-header {
+    display: flex;
+    flex-direction: column; /* Stack h2 and select vertically */
+    align-items: flex-start; /* Align content to start */
+    margin-bottom: 15px; /* Space between header and list */
+    flex-shrink: 0; /* Prevent header from shrinking */
+    padding-left: 0; /* No left padding here, elements align to container edge */
+    width: 100%; /* Take full width */
+}
+
+.sidebar-header h2 {
+    margin: 0 0 10px 0; /* Adjust margin for h2 inside header */
+    font-size: 20px; /* Adjust h2 font size if needed */
+    color: #4CAF50;
+    width: 100%; /* Take full width of its parent */
+    display: flex; /* Make h2 a flex container for text and icon */
+    justify-content: space-between; /* Push icon to the right */
+    align-items: center; /* Vertically align icon with text */
+}
+
+/* Icon for hiding sidebar, now within h2 */
+#hideSidebarIcon {
+    cursor: pointer;
+    font-size: 20px;
+    color: #e0e0e0;
+    margin-left: 10px; /* Space from "测验导航" text */
+    transition: color 0.2s ease;
+}
+
+#hideSidebarIcon:hover {
+    color: #4CAF50;
+}
+
+/* Custom Dropdown Styles */
+.custom-dropdown {
+    position: relative; /* For dropdown content positioning */
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.dropdown-toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #555;
+    background-color: #3a3a3a;
+    color: #e0e0e0;
+    font-size: 16px;
+    cursor: pointer;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.dropdown-toggle:hover {
+    border-color: #4CAF50;
+}
+
+.dropdown-toggle.active {
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.5);
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%; /* Position below the toggle button */
+    left: 0;
+    width: 100%;
+    background-color: #3a3a3a; /* Dark background for dropdown menu */
+    border: 1px solid #555;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    list-style: none;
+    padding: 0;
+    margin: 5px 0 0 0; /* Space between toggle and menu */
+    z-index: 1001; /* Ensure it's above other content */
+    display: none; /* Hidden by default */
+    max-height: 200px; /* Max height for scrollable menu */
+    overflow-y: auto; /* Enable scrolling for menu items */
+}
+
+.dropdown-menu.show {
+    display: block;
+}
+
+.dropdown-menu li {
+    padding: 10px 15px;
+    color: #e0e0e0;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    border-bottom: 1px solid #4a4a4a; /* Add bottom border for separation */
+}
+
+.dropdown-menu li:last-child {
+    border-bottom: none; /* No border for the last item */
+}
+
+.dropdown-menu li:hover {
+    background-color: #4CAF50; /* Green on hover */
+    color: white;
+}
+
+.dropdown-arrow {
+    transition: transform 0.2s ease;
+}
+
+.dropdown-toggle.active .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+
+.sidebar-content {
+    flex-grow: 1; /* Allows list to take remaining space */
+    padding: 0; /* Reset padding, as sidebar itself has it */
+    display: flex; /* For controlling the list within it */
+    flex-direction: column;
+    padding-right: 10px; /* Add some padding to prevent scrollbar overlapping text */
+    min-height: 0; /* Critical for nested flex containers to allow scrolling children */
+}
+
+.quiz-nav {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex-grow: 1; /* Allow the list to expand */
+    overflow-y: auto; /* Scroll for nav list itself */
+}
+
+.quiz-nav li {
+    padding: 10px 15px;
+    margin-bottom: 8px;
+    background-color: #3a3a3a; /* Darker background for nav items */
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    white-space: nowrap; /* Prevent text wrapping */
+    overflow: hidden; /* Hide overflow text */
+    text-overflow: ellipsis; /* Add ellipsis for long titles */
+}
+
+.quiz-nav li:hover {
+    background-color: #4CAF50; /* Green on hover */
+    color: white;
+}
+
+.quiz-nav li.active {
+    background-color: #4CAF50; /* Active quiz in green */
+    color: white;
+    font-weight: bold;
+}
+
+.quiz-nav li.completed {
+    background-color: #28a745; /* Darker green for completed quizzes */
+    color: #ffffff;
+    opacity: 0.8;
+}
+
+/* Right main content area */
+.main-content {
+    flex-grow: 1; /* Takes remaining space */
+    display: flex; /* Use flexbox to center inner wrapper */
+    flex-direction: column; /* Keep column to stack the inner wrapper vertically (if needed) or just for flex properties */
+    padding: 20px; /* Padding for main content */
+    position: relative;
+    overflow-y: auto; /* Main scroll for this area if content overflows */
+    margin-left: 340px; /* Adjusted margin for new sidebar width (320px + 20px buffer) */
+    transition: margin-left 0.3s ease-in-out; /* Keep for smooth transition */
+    align-items: center; /* Center content horizontally */
+    justify-content: flex-start; /* Align content to the top */
+}
+
+/* When sidebar is hidden, adjust main content margin-left to allow centering */
+body.sidebar-hidden .main-content {
+    margin-left: 20px; /* Reduced margin when sidebar is hidden, aligns with left side */
+}
+
+
+/* NEW INNER WRAPPER for horizontal layout and max-width/centering */
+.main-content-inner-wrapper {
+    display: flex;
+    flex-direction: row; /* Horizontal layout for question and answers */
+    gap: 20px; /* Space between question panel and interaction panel */
+    width: 100%; /* Take full width of parent up to max-width */
+    max-width: 1800px; /* Overall max width for the quiz content area */
+    align-items: flex-start; /* Align children to their top */
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    height: 100%; /* Make it take full height available from main-content's content box */
+}
+
+/* Left Panel: Question Text */
+.quiz-content-panel {
+    flex: 2.5; /* Adjusted proportion to be larger */
+    min-width: 450px; /* Minimum width for the question text panel */
+    background-color: #2a2a2a;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    display: flex; /* Use flex for direct children: h2, quiz-type, question-text-scroll-wrapper */
+    flex-direction: column;
+    max-height: calc(100% - 0px); /* 100% of parent's height (main-content-inner-wrapper) */
+}
+
+/* Right Panel: Controls and Options */
+.quiz-interaction-panel {
+    flex: 3; /* Adjusted proportion to be larger */
+    min-width: 400px; /* Increased minimum width for interaction panel */
+    display: flex;
+    flex-direction: column; /* Stack controls and options vertically */
+    gap: 20px; /* Gap between controls and options */
+    background-color: #2a2a2a;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    max-height: calc(100% - 0px); /* 100% of parent's height (main-content-inner-wrapper) */
+}
+
+/* Styles for content within the left question panel */
+#quiz-title { /* Renamed from #question-container h2 for direct targeting */
+    font-size: 24px;
+    color: #4CAF50; /* Green for question title */
+    margin-bottom: 10px;
+    border-bottom: 2px solid #4CAF50;
+    padding-bottom: 10px;
+    flex-shrink: 0; /* Prevent shrinking when content scrolls */
+}
+
+#quiz-type {
+    font-size: 16px;
+    color: #a0a0a0;
+    margin-bottom: 15px;
+    flex-shrink: 0; /* Prevent shrinking when content scrolls */
+}
+
+/* New wrapper for the scrollable question text */
+#question-text-scroll-wrapper {
+    flex-grow: 1; /* Allows content to take available space */
+    overflow-y: auto; /* Scroll for question text content */
+    padding-right: 10px; /* Add some padding to prevent text from touching scrollbar */
+    display: flex; /* Ensure its child `p` behaves well within it */
+    flex-direction: column;
+    gap: 15px; /* Spacing for consistency if future elements are added here */
+}
+
+.question-content {
+    font-size: 18px;
+    line-height: 1.6;
+    white-space: pre-wrap; /* Preserve line breaks from content */
+    margin-bottom: 0; /* No margin-bottom here, gap from parent handles it */
+    color: #e0e0e0;
+    flex-grow: 1; /* Allows content to grow and take space within the scroll wrapper */
+}
+
+/* Highlighted question number within the main content */
+.question-content .question-num-in-text {
+    color: #87CEEB; /* Light blue for highlighting */
+    text-decoration: underline;
+    font-weight: bold;
+    cursor: pointer; /* Indicate it's clickable */
+    background-color: rgba(69, 160, 73, 0.2); /* Subtle green background for emphasis */
+    padding: 2px 4px;
+    border-radius: 4px;
+    display: inline-block; /* Ensure padding and background apply correctly */
+}
+
+.question-content .question-num-in-text:hover {
+    color: #ADD8E6; /* Slightly lighter blue on hover */
+}
+
+/* Media container styles */
+.question-media-container {
+    margin-bottom: 15px;
+    border-radius: 8px;
+    overflow: hidden; /* Ensures video corners are rounded */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    flex-shrink: 0; /* Prevent shrinking */
+}
+
+.question-media-video {
+    width: 100%;
+    height: auto; /* Maintain aspect ratio */
+    display: block; /* Remove extra space below video */
+    border-radius: 8px; /* Apply rounded corners to video */
+}
+
+
+/* Controls remain the same, just moved into quiz-interaction-panel */
+.controls {
+    display: flex;
+    flex-wrap: wrap; /* Allow wrapping for smaller screens */
+    gap: 15px;
+    align-items: center;
+    padding-top: 0; /* No top padding, parent panel handles it */
+    border-top: none; /* No top border, parent panel handles it */
+}
+
+.control-button {
+    background-color: #4CAF50; /* Green button */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 25px;
+    cursor: pointer;
+    font-size: 18px;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    flex-shrink: 0; /* Prevent shrinking */
+}
+
+.control-button:hover:not(:disabled) {
+    background-color: #45a049;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
+}
+
+.control-button:disabled {
+    background-color: #555;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.timer-display, .score-display {
+    font-size: 18px;
+    color: #4CAF50; /* Green for timer/score */
+    background-color: #3a3a3a;
+    padding: 10px 20px;
+    border-radius: 8px;
+    min-width: 150px;
+    text-align: center;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Options container now specifically handles overflow for its content */
+.options-container {
+    flex-grow: 1; /* Takes remaining vertical space in quiz-interaction-panel */
+    overflow-y: auto; /* Critical for scrolling options */
+    min-height: 100px; /* Minimum height for options area */
+    /* No specific background/padding/shadow here, inherited from parent quiz-interaction-panel */
+    display: flex; /* Keep flex for inner question blocks */
+    flex-direction: column;
+    gap: 15px; /* Space between question blocks */
+    padding: 0; /* No padding, parent panel handles it */
+}
+
+/* Styling for each individual sub-question block */
+.question-block {
+    background-color: #3a3a3a;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid transparent; /* Default border */
+    transition: border-color 0.3s ease;
+}
+
+.question-sub-title {
+    font-weight: bold;
+    font-size: 1.1em;
+    margin-bottom: 10px;
+    color: #87CEEB; /* Light blue for question number */
+}
+
+/* Styles for single and multi-choice options */
+.choices-wrapper {
+    display: grid; /* Changed to grid for better column control */
+    grid-template-columns: repeat(4, minmax(0, 1fr)); /* 4 equal width columns */
+    gap: 10px; /* Space between choices */
+    align-items: stretch; /* Make all choice items in a row the same height */
+    box-sizing: border-box; /* Ensure padding and border are included in width calculation */
+}
+
+/* Styling for each individual choice (A, B, C, D) */
+.choice-item {
+    background-color: #444; /* Slightly lighter than question-block */
+    padding: 12px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+    border: 1px solid #555;
+    display: flex; /* For aligning A. B. C. D. */
+    align-items: center;
+    font-size: 16px;
+    box-sizing: border-box; /* Include padding and border in the width */
+    white-space: nowrap; /* Prevent text wrapping inside choice item */
+    overflow: hidden; /* Hide overflow text */
+    text-overflow: ellipsis; /* Add ellipsis for long text */
+}
+
+@media (max-width: 1100px) { /* Adjusted breakpoint for 3 items per row on slightly smaller screens */
+    .choices-wrapper {
+        grid-template-columns: repeat(3, minmax(0, 1fr)); /* 3 equal width columns */
+    }
+}
+
+@media (max-width: 900px) { /* Adjusted breakpoint for 2 items per row */
+    .choices-wrapper {
+        grid-template-columns: repeat(2, minmax(0, 1fr)); /* 2 equal width columns */
+    }
+}
+
+@media (max-width: 700px) { /* Adjusted breakpoint for 1 item per row */
+    .choices-wrapper {
+        grid-template-columns: repeat(1, minmax(0, 1fr)); /* 1 equal width column */
+    }
+}
+
+
+.choice-item:hover:not(.disabled):not(.selected-choice):not(.correct-choice):not(.incorrect-choice) {
+    background-color: #555;
+    border-color: #4CAF50;
+}
+
+/* Classes for selected, correct, incorrect choices */
+.choice-item.selected-choice {
+    background-color: #4CAF50; /* Green for selected */
+    border-color: #32CD32;
+    color: white;
+}
+.choice-item.correct-choice {
+    background-color: #28a745; /* Darker green for correct */
+    border-color: #28a745;
+    color: white;
+    box-shadow: 0 0 8px rgba(40, 167, 69, 0.5);
+}
+.choice-item.incorrect-choice {
+    background-color: #dc3545; /* Red for incorrect */
+    border-color: #dc3545;
+    color: white;
+    box-shadow: 0 0 8px rgba(220, 53, 69, 0.5);
+}
+.choice-item.disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+    pointer-events: none; /* Prevent clicks when disabled */
+}
+
+/* Styling for individual question explanations */
+.question-explanation {
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px dashed #555;
+    font-size: 15px;
+    line-height: 1.5;
+    color: #c0c0c0;
+}
+.question-explanation .your-answer {
+    font-weight: bold;
+    color: #87CEEB; /* Light blue for user's answer */
+}
+.question-explanation .correct-answer {
+    font-weight: bold;
+    color: #28a745; /* Dark green for correct answer */
+}
+.explanation-icon {
+    margin-right: 8px; /* Space between icon and text */
+    font-size: 1.2em; /* Slightly larger icon */
+    vertical-align: middle; /* Align icon vertically with text */
+}
+
+
+/* --- New Styles for New Question Types --- */
+
+/* Fill-in-blank input */
+.fill-in-blank-container {
+    display: flex;
+    flex-wrap: wrap; /* Allow wrapping for long sentences */
+    gap: 5px; /* Small gap between text parts and inputs */
+    align-items: baseline; /* Align text and inputs on the same baseline */
+}
+
+.fill-in-blank-input {
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid #555;
+    background-color: #3a3a3a;
+    color: #e0e0e0;
+    font-size: 16px;
+    box-sizing: border-box;
+    min-width: 100px; /* Minimum width for input fields */
+    max-width: 200px; /* Maximum width for input fields */
+    flex-grow: 1; /* Allow inputs to grow if space available */
+}
+.fill-in-blank-input:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.5);
+}
+.fill-in-blank-input.correct {
+    border-color: #28a745;
+    background-color: rgba(40, 167, 69, 0.2);
+}
+.fill-in-blank-input.incorrect {
+    border-color: #dc3545;
+    background-color: rgba(220, 53, 69, 0.2);
+}
+.fill-in-blank-text-part {
+    white-space: pre-wrap; /* Preserve spaces and line breaks within text parts */
+    line-height: 1.6;
+}
+
+
+/* Matching question styles */
+.matching-container {
+    display: flex;
+    justify-content: space-around;
+    gap: 20px;
+    margin-top: 10px;
+}
+
+.matching-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 150px; /* Ensure columns don't collapse too much */
+}
+
+.matching-item {
+    background-color: #444;
+    padding: 10px 15px;
+    border-radius: 6px;
+    cursor: grab; /* Indicate draggable */
+    border: 1px solid #555;
+    transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    text-align: center;
+}
+
+.matching-item:hover:not(.disabled):not(.matching-selected-left):not(.matching-selected-right) {
+    background-color: #555;
+    border-color: #4CAF50;
+}
+
+/* Specific states for matching items */
+.matching-item.dragging {
+    opacity: 0.5; /* Visual feedback for dragging */
+    border: 2px dashed #4CAF50;
+    cursor: grabbing;
+}
+
+.matching-item.drag-over {
+    border: 2px dashed #87CEEB; /* Highlight drop target */
+    box-shadow: 0 0 10px rgba(135, 206, 235, 0.7);
+}
+
+.matching-item.matching-selected-left {
+    background-color: #87CEEB; /* Light blue for selected left item */
+    border-color: #4A90E2;
+    color: #1a1a1a;
+    font-weight: bold;
+}
+
+.matching-item.matching-selected-right {
+    background-color: #F7B84B; /* Orange for selected right item */
+    border-color: #E2A03A;
+    color: #1a1a1a;
+    font-weight: bold;
+}
+
+.matching-item.matching-connected {
+    background-color: #28a745; /* Green for correctly connected pairs */
+    border-color: #28a745;
+    color: white;
+    opacity: 0.8;
+    pointer-events: none; /* Disable further clicks on connected items */
+}
+
+.matching-item.matching-incorrect {
+    background-color: #dc3545; /* Red for incorrectly connected pairs */
+    border-color: #dc3545;
+    color: white;
+    opacity: 0.8;
+    pointer-events: none;
+}
+
+/* Explanation specific to matching */
+/* Renamed to grid for better control of columns */
+.question-explanation .matching-explanation-grid {
+    display: grid;
+    /* Define 4 columns: text-part (auto), user-answer (auto), icon (fixed small), correct-answer (auto) */
+    grid-template-columns: auto auto 25px auto; 
+    align-items: center;
+    gap: 5px 10px; /* Row gap, column gap */
+    margin-top: 10px;
+}
+
+.question-explanation .matching-explanation-pair-row {
+    display: contents; /* Makes children participate in parent grid */
+}
+
+.question-explanation .explanation-left-side {
+    color: #87CEEB;
+    font-weight: bold;
+    text-align: right; /* Align left side text to the right for spacing */
+    padding-right: 5px;
+}
+.question-explanation .explanation-user-answer {
+    color: #F7B84B; /* User's answer color */
+    font-weight: bold;
+}
+.question-explanation .explanation-status-icon {
+    display: flex;
+    justify-content: center; /* Center the icon in its column */
+}
+.question-explanation .explanation-correct-answer {
+    color: #28a745; /* Correct answer color */
+    font-weight: bold;
+    padding-left: 5px;
+}
+
+.question-explanation .matching-explanation-pair-row.correct .explanation-status-icon i {
+    color: #28a745;
+}
+.question-explanation .matching-explanation-pair-row.incorrect .explanation-status-icon i {
+    color: #dc3545;
+}
+
+
+/* New styles for user-matched pairs display (Draft Area) */
+.matching-user-pairs-display {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px dashed #555;
+}
+
+.matching-user-pairs-display h4 {
+    color: #4CAF50;
+    margin-bottom: 10px;
+    font-size: 1.1em;
+}
+
+/* Grid layout for matched pairs list (草稿) */
+#matched-pairs-list {
+    display: grid;
+    grid-template-columns: 1fr auto; /* Two columns: description and remove action */
+    gap: 8px 10px; /* Gap between rows and columns */
+    align-items: center;
+}
+
+.matched-pair-item-display {
+    background-color: #3a3a3a;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #555;
+    font-size: 15px;
+    /* These styles apply to the grid item, not the direct content */
+    display: contents; /* Makes children participate in the parent grid */
+}
+
+/* Flex layout for the description part of the pair (Left column of the grid) */
+.matched-pair-item-display .pair-description {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Space between left, arrow, right */
+    white-space: nowrap; /* Prevent wrapping */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 5px; /* Ensure space before the next column */
+}
+
+.matched-pair-item-display .left-display {
+    color: #87CEEB;
+    font-weight: bold;
+}
+
+.matched-pair-item-display .right-display {
+    color: #F7B84B;
+    font-weight: bold;
+}
+
+/* Styles for the remove action (Right column of the grid) */
+.matched-pair-item-display .remove-action {
+    display: flex;
+    align-items: center;
+    gap: 5px; /* Space between button and text */
+    justify-self: end; /* Align to the end of the grid column */
+}
+
+.matched-pair-remove-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px; /* Increased size for better touch target */
+    height: 24px; /* Increased size for better touch target */
+    font-size: 14px; /* Increased font size for icon */
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+    flex-shrink: 0; /* Prevent shrinking */
+}
+
+.matched-pair-remove-btn:hover {
+    background-color: #c82333;
+}
+.matched-pair-remove-btn i {
+    font-size: 14px; /* Ensure icon is visible and appropriately sized */
+}
+
+
+/* Responsive design */
+@media (max-width: 1024px) { /* Adjust breakpoint for column layout */
+    .main-content-inner-wrapper {
+        flex-direction: column; /* Stack panels vertically on smaller screens */
+        max-width: 700px; /* Adjust overall max-width for stacked panels */
+        width: 100%;
+        height: auto; /* Allow height to adjust naturally when stacked */
+    }
+
+    .quiz-content-panel,
+    .quiz-interaction-panel {
+        max-height: none; /* Allow natural height when stacked */
+        flex: none; /* Remove flex proportions when stacked */
+        width: 100%; /* Take full width when stacked */
+        min-width: unset; /* Remove min-width constraints */
+    }
+
+    /* Adjust options-container max-height when stacked */
+    .options-container {
+        max-height: 400px; /* Example fixed max-height when stacked, allowing its own scroll */
+    }
+    .matching-container {
+        flex-direction: column; /* Stack matching columns vertically */
+    }
+    .matching-column {
+        min-width: unset;
+        width: 100%; /* Take full width */
+    }
+
+    /* Adjust matching explanation grid for smaller screens */
+    .question-explanation .matching-explanation-grid {
+        grid-template-columns: 1fr 1fr auto 1fr; /* More balanced on smaller screens */
+        gap: 5px;
+    }
+    .question-explanation .explanation-left-side {
+        text-align: left; /* Align left to prevent cramped text */
+        padding-right: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        width: 250px; /* Retain original mobile sidebar width */
+        position: fixed; /* Make sidebar fixed on smaller screens */
+        height: 100%;
+        top: 0;
+        left: 0;
+        z-index: 999;
+        padding-top: 0; /* Removed this, sidebar-header handles it */
+        transform: translateX(0); /* Default position for fixed sidebar */
+    }
+    .sidebar.hidden {
+        left: -250px; /* Hide completely off-screen */
+        width: 0;
+        transform: translateX(0); /* Fixed sidebars often use left/right for hiding */
+    }
+    #showSidebarIconContainer {
+        position: fixed; /* Keep fixed for mobile */
+        left: 10px; /* Adjust button position */
+        top: 10px;
+        padding: 10px 15px; /* Larger padding for mobile touch targets */
+        font-size: 16px;
+    }
+    .main-content {
+        margin-left: 0; /* No margin on smaller screens */
+        padding: 15px; /* Adjust padding for smaller screens */
+    }
+    body.sidebar-hidden .main-content {
+        margin-left: 0; /* When sidebar is hidden, main content still uses full width */
+    }
+    /* Adjust main content left margin when sidebar is NOT hidden on mobile */
+    body:not(.sidebar-hidden) .main-content {
+        margin-left: 250px; /* Consistent with mobile sidebar width */
+    }
+    .quiz-content-panel,
+    .quiz-interaction-panel {
+        padding: 20px; /* Reduce panel padding */
+    }
+
+    /* Adjust matching explanation grid for even smaller screens */
+    .question-explanation .matching-explanation-grid {
+        grid-template-columns: 1fr auto 1fr; /* Left, Icon, Right combined */
+        gap: 5px;
+    }
+    .question-explanation .explanation-user-answer {
+        grid-column: span 1; /* User answer takes 1 column */
+    }
+    .question-explanation .explanation-status-icon {
+        grid-column: 2 / 3; /* Icon in the middle column */
+    }
+    .question-explanation .explanation-correct-answer {
+        grid-column: 3 / 4; /* Correct answer in the rightmost column */
+    }
+    .question-explanation .explanation-left-side {
+        text-align: left; /* Keep left aligned */
+    }
+}
+
+@media (max-width: 480px) {
+    /* Further adjustments for very small screens */
+    .sidebar {
+        width: 100%;
+        left: 0;
+    }
+    .sidebar.hidden {
+        left: -100%;
+    }
+    .controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .control-button, .timer-display, .score-display {
+        width: 100%;
+        text-align: center;
+    }
+    .quiz-content-panel,
+    .quiz-interaction-panel {
+        padding: 15px; /* Further reduce panel padding */
+    }
+    .options-container {
+        max-height: 300px; /* Further reduce max-height on tiny screens */
+    }
+
+    /* Stack explanation items vertically on very small screens */
+    .question-explanation .matching-explanation-grid {
+        grid-template-columns: 1fr; /* Single column */
+        gap: 0; /* No gap between stacked items */
+    }
+    .question-explanation .matching-explanation-pair-row {
+        display: flex;
+        flex-direction: column; /* Stack elements within a row */
+        align-items: flex-start;
+        border-bottom: 1px dotted #4a4a4a; /* Separator for stacked rows */
+        padding-bottom: 5px;
+        margin-bottom: 5px;
+    }
+    .question-explanation .matching-explanation-pair-row:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+    .question-explanation .explanation-left-side,
+    .question-explanation .explanation-user-answer,
+    .question-explanation .explanation-status-icon,
+    .question-explanation .explanation-correct-answer {
+        width: 100%; /* Take full width when stacked */
+        text-align: left;
+        padding: 0;
+    }
+    .matched-pair-remove-btn {
+        width: 20px;
+        height: 20px;
+        font-size: 12px;
+    }
+    .matched-pair-remove-btn i {
+        font-size: 12px;
+    }
+}
