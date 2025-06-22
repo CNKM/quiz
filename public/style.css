@@ -41,10 +41,11 @@ body {
     background: #777; /* Scrollbar thumb color on hover */
 }
 
-/* Custom Scrollbar Styles for Firefox */
+/* Custom Scrollbar Styles for Firefox (仅 Firefox 支持，其他浏览器无影响)
+   scrollbar-width/scrollbar-color 仅影响 Firefox，主流浏览器请用 ::-webkit-scrollbar 相关规则 */
 html {
-    scrollbar-width: thin; /* "auto" or "thin" */
-    scrollbar-color: #555 #2a2a2a; /* thumb color track color */
+    scrollbar-width: thin; /* 仅 Firefox 支持 */
+    scrollbar-color: #555 #2a2a2a; /* 仅 Firefox 支持，Chrome/Safari/Edge/移动端无效 */
 }
 
 
