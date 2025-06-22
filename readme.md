@@ -8,6 +8,26 @@
 
 （作答界，交卷后评改与分析，主要是维护题库）
 
+![1750566101947](images/readme/1750566101947.png)
+
+![1750566134927](images/readme/1750566134927.png)
+
+视频题目![1750566170482](images/readme/1750566170482.png)
+
+填空题目
+
+![1750566191329](images/readme/1750566191329.png)
+
+多选题目
+
+![1750566209459](images/readme/1750566209459.png)
+
+判断题
+
+![1750566223892](images/readme/1750566223892.png)
+
+连线题
+
 ## 1. 引言
 
 **本文档旨在详细阐述当前“互动测验页面”应用的功能需求和设计细节。该应用提供了一个用户友好的界面，用于进行多项选择题测验，并提供即时反馈和答案解析。本说明书将作为未来开发和维护的参考依据，确保应用功能的一致性和可重现性。**
@@ -85,46 +105,13 @@
 
 `<span class="selected">quiz_data.js</span>` 文件中的 `<span class="selected">quizData</span>` 对象结构如下：
 
-```
-const quizData = {
-    "questions": [
-        {
-            "id": 1, // 测验唯一ID
-            "type": "完形填空", // 测验类型，用于筛选
-            "title": "My best friend, Connie", // 测验标题
-            "content": "My best friend, Connie, is two years older than me. We spend a lot of time together.\nConnie has long dark brown hair and her eyes are big and round. People say she is 1． and looks like a doll. When we go out, people often 2． that I am older than her because she is shorter and slimmer（更苗条的）.\nConnie is positive（乐观的）even when things go 3． . Last week she got her examination 4． , which were not very good. I thought she was going to be 5． .Instead, she simply decided to do better the next time. Then, every day after class, 6． teachers are free in their offices, she will ask them for help.\nConnie gets on well with others. Everyone in my family 7． her, even my younger brother. When you hear her laugh, you will naturally（自然地）laugh 8． . When I feel unhappy, I will talk to Connie and she will make me feel 9． .\nI think my 10． with Connie is very valuable, and I hope we will always be best friends.", // 测验文章正文，包含待填空题号
-            "options": [ // 小题列表
-                {
-                    "question": "1．", // 小题题号，需与content中对应文本完全一致
-                    "choices": { "A": "crazy", "B": "beautiful", "C": "lazy", "D": "ugly" }, // 选项键值对
-                    "answer": "B", // 正确答案键
-                    "explanation": "句意：...A.设计；B.花费；C.收集；D.保存。spend time doing sth.花费时间做某事，固定搭配，故选B。" // 答案解析
-                },
-                {
-                    "question": "（7）", // 不同格式的题号
-                    "choices": { "A": "Nodding", "B": "Running", "C": "Jumping", "D": "Speaking" },
-                    "answer": "D",
-                    "explanation": "句意：面对面地与陌生人交谈会让他们感到紧张。A.点头；B.跑；C.跳；D.说话。根据to new people face to face可知是说话，故选D。"
-                },
-                {
-                    "question": "96.", // 仅数字加点
-                    "choices": { "A": "rest", "B": "look", "C": "watch", "D": "see" },
-                    "answer": "A",
-                    "explanation": "解析内容..."
-                }
-                // ... 更多小题
-            ]
-        }
-        // ... 更多测验
-    ]
-};
+新的数据库结构，参考new/quiz_data.js 多题型支持
 
-```
 
 ## 6. 未来扩展性
 
 * **后端集成：** 可以与后端服务集成，实现测验数据的动态加载、用户成绩的持久化存储、用户认证等功能。
-* **更多题型：** 扩展支持除单项选择之外的其他题型，例如多项选择、填空题、简答题等。
+* **更多题型：** 扩展支持除单项选择之外的其他题型，例如多项选择、填空题、简答题等。(已经完成)
 * **用户管理：** 引入用户注册、登录、个人测验记录等功能。
 * **测验配置：** 允许用户自定义测验时长、题目数量等参数。
 * **高级统计：** 提供更详细的测验数据分析和可视化报告。
