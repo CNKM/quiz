@@ -5,7 +5,7 @@
             "type": "msedge", // <--- Changed from "chrome" to "msedge"
             "request": "launch",
             "name": "Launch Edge against file",
-            "file": "${workspaceFolder}/quiz.min.html",
+            "file": "${workspaceFolder}/index.html",
             "webRoot": "${workspaceFolder}"
         }
     ]
