@@ -11,6 +11,23 @@ const port = 3000; // 你可以选择任何未被占用的端口，例如 3000, 
 // 'public' 是你的静态文件所在的目录名，例如你的 index.html, script.js, style.css 和 lib 文件夹都在这里面
 app.use(express.static('public'));
 
+// 引入文件系统模块
+const fs = require('fs');
+const path = require('path');
+
+// 新增API：返回 public/lib/ 下所有 .json 文件名
+app.get('/api/quiz-list', (req, res) => {
+    const libDir = path.join(__dirname, 'public', 'lib');
+    fs.readdir(libDir, (err, files) => {
+        if (err) {
+            return res.status(500).json({ error: '无法读取题库目录' });
+        }
+        // 只返回 .json 文件
+        const jsonFiles = files.filter(f => f.endsWith('.json'));
+        res.json(jsonFiles);
+    });
+});
+
 // 启动服务器并监听指定端口
 app.listen(port, () => {
     // 服务器成功启动后在控制台输出提示信息

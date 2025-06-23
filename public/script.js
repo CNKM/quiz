@@ -1386,13 +1386,24 @@ class QuizApp {
 
 /**
  * Loads quiz data files asynchronously and initializes the app.
+ * 自动扫描 public/lib/ 目录下所有 .json 题库文件（通过后端API）
  */
 async function loadQuizDataFiles() {
-    // 直接加载 JSON 文件
-    const filePaths = [
-        './lib/quiz_English_data.json',
-        './lib/quiz_data_Example.json'
-    ];
+    let filePaths = [];
+    try {
+        // 通过后端API获取题库文件名
+        const res = await fetch('/api/quiz-list');
+        if (!res.ok) throw new Error('无法获取题库文件列表');
+        const files = await res.json();
+        // 统一路径格式
+        filePaths = files.map(f => './lib/' + f);
+    } catch (e) {
+        // 兼容性降级：如无法自动获取，仍加载默认题库
+        filePaths = [
+            './lib/quiz_English_data.json',
+            './lib/quiz_data_Example.json'
+        ];
+    }
 
     for (const path of filePaths) {
         try {

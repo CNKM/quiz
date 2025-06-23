@@ -83,17 +83,33 @@
       ]
     },
     {
-      "id": 2,
-      "type": "完形填空",
+      "id": 200,
+      "type": "英语知识",
       "questionType": "single-choice",
-      "title": "Friendship will come back",
-      "content": "Friendship, which you think may have lost, will come back amazingly. I had a best friend 11． the age of 7. Two years later, her family moved to England. Before she left, she gave me a bracelet（手镯）which was similar to 12． . She said it was like our friendship. She also told me to be 13． with it and remember our friendship. She 14． that she would be back to visit me one day.\nYears passed, 15． I never saw her again. I took the bracelet off, because I thought she might have forgotten me.\nGuess what! All these years, our parents 16． kept in touch. One day, they decided to see each other at the city where we lived, without telling us. Later that night, when we met, we were both 17． , and of course, very pleased to see each other again. Then we talked about the things that 18． to us all these years. In the conversation, she found I wasn't 19． the bracelet she gave me, so she asked me why. I explained the 20． patiently. Then she said, \"I promised you that I would come back, so here I am today. I always remember our friendship. I will do everything I can to keep my promise.\"",
+      "title": "单选题示例：Which is the capital of France?",
+      "content": "Which is the capital of France?",
       "options": [
-        {"question": "11.", "choices": {"A": "by", "B": "in", "C": "at", "D": "from"}, "answer": "C", "explanation": "句意：我七岁时有一个最好的朋友。A：通过；B：在……里；C：在；D：从。at the age of…，意为：在……岁，为固定搭配。故答案为：C。"},
-        {"question": "12.", "choices": {"A": "mine", "B": "hers", "C": "ours", "D": "theirs"}, "answer": "B", "explanation": "句意：在她离开前，她给了我一个和她的相似的手镯。A：我的；B：她的；C：我们的；D：他们的。根据主语she可知，此处用名词性物主代词hers，故答案为：B。"},
-        {"question": "13.", "choices": {"A": "careful", "B": "comfortable", "C": "personal", "D": "wonderful"}, "answer": "A", "explanation": "句意：她还告诉我要小心手镯，记得我们的友谊。A：细心的；B：舒服的；C：个人的；D：好的。be careful with，意为：对……小心，为固定搭配。故答案为：A。"},
-        {"question": "14.", "choices": {"A": "agreed", "B": "told", "C": "promised", "D": "offered"}, "answer": "C", "explanation": "句意：她承诺说在某一天会回来看我的。A：同意；B：告诉；C：承诺；D：提供。根据she would be back to visit me one day.在某一天会回来看我的。可知，这应该是她的承诺。故答案为：C。"},
-        {"question": "15.", "choices": {"A": "because", "B": "and", "C": "so", "D": "but"}, "answer": "D", "explanation": "句意：但是多年过去了，我没有再次看到她。A：因为；B：和；C：因此；D：但是。根据前句：她曾经承诺我要回来看望我，可知，空处前后为转折关系，用转折连词。故答案为：D。"}
+        {"question": "A.", "choices": {"A": "London", "B": "Berlin", "C": "Paris", "D": "Rome"}, "answer": "C", "explanation": "巴黎是法国的首都。"}
+      ]
+    },
+    {
+      "id": 201,
+      "type": "英语知识",
+      "questionType": "single-choice",
+      "title": "单选题示例：What color do you get when you mix blue and yellow?",
+      "content": "What color do you get when you mix blue and yellow?",
+      "options": [
+        {"question": "A.", "choices": {"A": "Green", "B": "Purple", "C": "Orange", "D": "Red"}, "answer": "A", "explanation": "蓝色和黄色混合得到绿色。"}
+      ]
+    },
+    {
+      "id": 202,
+      "type": "英语知识",
+      "questionType": "single-choice",
+      "title": "单选题示例：Which animal is known as 'the king of the jungle'?",
+      "content": "Which animal is known as 'the king of the jungle'?",
+      "options": [
+        {"question": "A.", "choices": {"A": "Elephant", "B": "Lion", "C": "Tiger", "D": "Giraffe"}, "answer": "B", "explanation": "狮子被称为丛林之王。"}
       ]
     }
   ]
