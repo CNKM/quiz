@@ -493,9 +493,10 @@ body.sidebar-hidden .main-content {
     align-items: center;
     font-size: 16px;
     box-sizing: border-box; /* Include padding and border in the width */
-    white-space: nowrap; /* Prevent text wrapping inside choice item */
-    overflow: hidden; /* Hide overflow text */
-    text-overflow: ellipsis; /* Add ellipsis for long text */
+    white-space: normal; /* 允许内容换行 */
+    overflow: auto; /* 超出显示滚动条 */
+    max-height: 6em; /* 限制最大高度，超出可滚动 */
+    word-break: break-all; /* 长单词/英文也能断行 */
 }
 
 @media (max-width: 1100px) { /* Adjusted breakpoint for 3 items per row on slightly smaller screens */
