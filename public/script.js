@@ -2396,15 +2396,47 @@ class QuizApp {
 
     // Calculate and display overall score
     const accuracyPercentage = totalQuestions === 0 ? 0 : ((correctCount / totalQuestions) * 100).toFixed(2);
-    this.scoreDisplay.textContent = `正确率: ${correctCount}/${totalQuestions} (${accuracyPercentage}%)`;
-    this.scoreDisplay.classList.remove("score-high", "score-mid", "score-low");
+    let displayEmoji = ""; // Variable for emojis
+    let displayText = ""; // Variable for descriptive text
+    let displayClass = ""; // This will align with score-high, score-mid, score-low
+
+    // Determine comment, emoji, and class based on accuracyPercentage
     if (accuracyPercentage >= 90) {
-      this.scoreDisplay.classList.add("score-high");
+      displayEmoji = "🎉🥳";
+      displayText = "太棒了！你简直是答题机器！";
+      displayClass = "score-high";
+    } else if (accuracyPercentage >= 80) {
+      displayEmoji = "👍✨";
+      displayText = "真厉害！差一点就满分啦！";
+      displayClass = "score-high";
+    } else if (accuracyPercentage >= 70) {
+      displayEmoji = "🤔💡";
+      displayText = "还不错！再多思考一下下！";
+      displayClass = "score-mid";
     } else if (accuracyPercentage >= 60) {
-      this.scoreDisplay.classList.add("score-mid");
+      displayEmoji = "😬😅";
+      displayText = "勉强及格！下次要更稳哦！";
+      displayClass = "score-mid";
+    } else if (accuracyPercentage >= 40) {
+      displayEmoji = "😩💦";
+      displayText = "需要加把劲！别放弃呀！";
+      displayClass = "score-low";
+    } else if (accuracyPercentage >= 20) {
+      displayEmoji = "😵‍💫🤯";
+      displayText = "有点头晕？答案去哪儿了？";
+      displayClass = "score-low";
     } else {
-      this.scoreDisplay.classList.add("score-low");
+      displayEmoji = "👻👽";
+      displayText = "这…确定是地球语吗？";
+      displayClass = "score-low";
     }
+
+    // Remove previous classes and add the new one
+    this.scoreDisplay.classList.remove("score-high", "score-mid", "score-low");
+    this.scoreDisplay.classList.add(displayClass);
+
+    // Update the display with score details, then emojis and text
+    this.scoreDisplay.innerHTML = `正确率: ${correctCount}/${totalQuestions} (${accuracyPercentage}%)<br><span class="emoji-small">${displayEmoji}</span> <span class="text-small">${displayText}</span>`;
 
     // Mark quiz as completed in navigation
     const navItem = this.quizNav ? this.quizNav.querySelector(`li[data-original-index="${this.currentQuizIndex}"]`) : null;
@@ -2576,35 +2608,45 @@ class QuizApp {
     // Display overall set quiz score in the dedicated sidebar element
     if (this.setQuizSummaryDisplay) this.setQuizSummaryDisplay.style.display = "flex"; // Show the summary display
     if (this.overallScorePercentageDisplay) {
-      let comment = "";
+      // ...existing code...
+      let commentEmoji = ""; // New variable for just emojis
+      let commentText = ""; // New variable for just text
       let commentClass = "";
       const percent = Number(this.overallSetQuizScore.percentage);
 
       if (percent >= 90) {
-        comment = "🤩🤩🤩🤩🤩<br>优秀！智商200的天才就是你！";
+        commentEmoji = "🤩🤩🤩🤩🤩";
+        commentText = "优秀！智商200的天才就是你！";
         commentClass = "score-high";
-        } else if (percent >= 80) {
-        comment = "😎😎😎😎<br>很好！你离学霸只差一个转弯！";
+      } else if (percent >= 80) {
+        commentEmoji = "😎😎😎😎";
+        commentText = "很好！你离学霸只差一个转弯！";
         commentClass = "score-high";
-        } else if (percent >= 70) {
-        comment = "💪💪💪<br>良好！再努把力就能躺赢了！";
+      } else if (percent >= 70) {
+        commentEmoji = "💪💪💪";
+        commentText = "良好！再努把力就能躺赢了！";
         commentClass = "score-mid";
-        } else if (percent >= 60) {
-        comment = "😅😅<br>及格！恭喜你，搭上了末班车！";
+      } else if (percent >= 60) {
+        commentEmoji = "😅😅";
+        commentText = "及格！恭喜你，搭上了末班车！";
         commentClass = "score-mid";
-        } else if (percent >= 40) {
-        comment = "😵‍💫<br>需要努力！是不是昨晚没睡好？";
+      } else if (percent >= 40) {
+        commentEmoji = "😵‍💫";
+        commentText = "需要努力！是不是昨晚没睡好？";
         commentClass = "score-low";
-        } else if (percent >= 20) {
-        comment = "🆘🆘🆘👻👻<br>不太理想！这成绩…是认真的吗？";
+      } else if (percent >= 20) {
+        commentEmoji = "🆘🆘🆘👻👻";
+        commentText = "不太理想！这成绩…是认真的吗？";
         commentClass = "score-low";
-        } else {
-        comment = "💩💩💩💩💩<br>一塌糊涂！是不是把答案写在了梦里？";
+      } else {
+        commentEmoji = "💩💩💩💩💩";
+        commentText = "一塌糊涂！是不是把答案写在了梦里？";
         commentClass = "score-low";
-        }
+      }
+
       this.overallScorePercentageDisplay.classList.remove("score-high", "score-mid", "score-low");
       this.overallScorePercentageDisplay.classList.add(commentClass);
-      this.overallScorePercentageDisplay.innerHTML = `正确率: ${this.overallSetQuizScore.percentage}% (${this.overallSetQuizScore.correct}/${this.overallSetQuizScore.total})<br><span>${comment}</span>`;
+      this.overallScorePercentageDisplay.innerHTML = `正确率: ${this.overallSetQuizScore.percentage}% (${this.overallSetQuizScore.correct}/${this.overallSetQuizScore.total})<br><span class="emoji-display">${commentEmoji}</span><span class="text-display">${commentText}</span>`;
     }
   }
 

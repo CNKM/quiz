@@ -321,6 +321,7 @@ html {
     margin: 0;
     flex-grow: 1; /* Allow the list to expand */
     overflow-y: auto; /* Scroll for nav list itself */
+    
 }
 
 .quiz-nav li {
@@ -1171,4 +1172,30 @@ body.sidebar-hidden .main-content {
 }
 .score-low {
     color: #dc3545 !important; /* 红色 */
+}
+
+.emoji-display {
+    text-align: center; /* Center emojis */
+  font-size: 2em; /* Adjust this value to make your emojis the perfect size */
+  /* You can add more styles here for emojis, e.g., margin, padding */
+  display: block; /* Make emojis appear on their own line if desired */
+}
+
+.text-display {
+    margin-top: 3px; /* Space between emoji and text */
+  font-size: 1em; /* Adjust this for your desired text size */
+  color: #121111; /* Example text color */
+  /* Add more styles specific to your text here */
+}
+
+.emoji-display-small {
+  font-size: 1.8em; /* Adjust for the size of emojis in this section */
+  /* You can set display: inline-block; or adjust margins if needed */
+  vertical-align: middle; /* Helps align emojis with text on the same line */
+}
+
+.text-display-small {
+  font-size: 1em; /* Adjust for the size of text in this section */
+  color: #555; /* Example text color */
+  vertical-align: middle;
 }
