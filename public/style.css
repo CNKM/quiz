@@ -271,7 +271,8 @@ html {
 .set-quiz-summary-display {
     width: 100%;
     background-color: #3a3a3a;
-    padding: 12px 15px;
+    /* Adjusted padding and gap to reduce height */
+    padding: 6px 15px; /* Reduced vertical padding */
     border-radius: 8px;
     border: 1px solid #555;
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -279,7 +280,7 @@ html {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 8px;
+    gap: 2px; /* Further reduced gap */
 }
 
 .set-quiz-summary-display h4 {
@@ -289,7 +290,7 @@ html {
 }
 
 .set-quiz-summary-display .overall-score-percentage {
-    font-size: 20px;
+    font-size: 18px; /* Slightly reduced font size for overall score */
     font-weight: bold;
     color: #4CAF50; /* Default green, will be overridden by score-high/mid/low */
 }
@@ -323,8 +324,8 @@ html {
 }
 
 .quiz-nav li {
-    padding: 10px 15px;
-    margin-bottom: 8px;
+    padding: 2px 15px; /* Further reduced padding-top/bottom to make items shorter */
+    margin-bottom: 1px; /* Further reduced margin-bottom for tighter spacing */
     background-color: #3a3a3a; /* Darker background for nav items */
     border-radius: 8px;
     cursor: pointer;
@@ -374,10 +375,17 @@ html {
     opacity: 0.9;
 }
 
+.quiz-nav li .quiz-nav-title {
+    font-size: 0.9em; /* Slightly smaller consistent title font size */
+    margin-bottom: 0px; /* Remove margin below title for tighter spacing */
+    line-height: 1.2; /* Adjusted line height for title */
+}
+
 .quiz-nav li .nav-item-score {
-    font-size: 0.9em;
+    font-size: 0.7em; /* Further reduced font size for score */
     font-weight: normal;
-    margin-top: 0; /* Reduced margin-top to 0 for tighter spacing */
+    margin-top: -2px; /* Negative margin to pull score closer to title */
+    line-height: 1.1; /* Even tighter line height for score */
     color: #f0f0f0; /* Default score color */
     white-space: nowrap; /* Prevent score from wrapping */
     overflow: hidden;
@@ -443,7 +451,7 @@ body.sidebar-hidden .main-content {
 /* Right Panel: Controls and Options */
 .quiz-interaction-panel {
     flex: 3; /* Adjusted proportion to be larger */
-    min-width: 640px; /* Increased minimum width to accommodate all 6 elements in one line */
+    min-width: 680px; /* Increased minimum width to accommodate all 6 elements in one line */
     display: flex;
     flex-direction: column; /* Stack controls and options vertically */
     gap: 20px; /* Gap between controls and options */
@@ -546,7 +554,7 @@ body.sidebar-hidden .main-content {
     font-size: 14px; /* Adjusted font size for better fit */
     transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-    width: 90px; /* Fixed width for uniformity */
+    width: 100px; /* Adjusted width for uniformity and more space */
     text-align: center;
     flex-shrink: 0; /* Prevent shrinking below min-width */
 }
@@ -571,17 +579,17 @@ body.sidebar-hidden .main-content {
     align-items: center;
     gap: 10px; /* Space between timer and score */
     flex-grow: 1; /* Allow this wrapper to take available space */
-    width: 180px; /* Fixed width for the pair to ensure it aligns with other buttons */
+    width: 220px; /* Adjusted width for the pair to ensure it aligns with other buttons */
     flex-shrink: 0; /* Prevent shrinking */
 }
 
 .timer-display, .score-display {
-    font-size: 14px; /* Adjusted font size for better fit */
+    font-size: 16px; /* Increased font size for better readability */
     color: #4CAF50; /* Green for timer/score */
     background-color: #3a3a3a;
-    padding: 8px 10px; /* Adjusted padding */
+    padding: 10px 14px; /* Increased padding for more background space */
     border-radius: 8px;
-    width: 90px; /* Fixed width, same as buttons, for uniformity */
+    width: 110px; /* Adjusted width for each display */
     text-align: center;
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
     white-space: nowrap; /* Prevent text from wrapping */
@@ -1009,25 +1017,25 @@ body.sidebar-hidden .main-content {
     }
 
     .control-button {
-        width: 80px; /* Adjusted width to fit better on smaller screens */
+        width: 90px; /* Adjusted width to fit better on smaller screens */
         padding: 6px 8px; /* Reduced padding */
         font-size: 12px; /* Reduced font size */
         min-width: 60px; /* Reduced min-width */
-        max-width: 90px; /* Adjusted max-width */
+        max-width: 100px; /* Adjusted max-width */
     }
     .timer-score-wrapper {
         flex-grow: 1; /* Allow to grow */
         width: auto; /* Auto width to allow buttons to take space */
-        min-width: 130px; /* Min width for the timer-score pair */
-        max-width: 160px; /* Max width for the timer-score pair */
+        min-width: 160px; /* Min width for the timer-score pair */
+        max-width: 200px; /* Max width for the timer-score pair */
         gap: 5px; /* Reduced gap within the pair */
     }
     .timer-display, .score-display {
-        width: 60px; /* Reduced width for each display */
+        width: 80px; /* Adjusted width for each display */
         padding: 6px 8px;
         font-size: 12px;
-        min-width: 60px;
-        max-width: 80px;
+        min-width: 70px;
+        max-width: 100px;
     }
 }
 

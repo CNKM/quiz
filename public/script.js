@@ -7,59 +7,127 @@ let app; // Declare app globally so loadQuizDataFiles can access it
 // QuizApp Class to encapsulate all quiz logic and state
 class QuizApp {
     constructor() {
-        // DOM Elements
-        this.body = document.body;
+        // DOM Elements - Added null checks for safer access
+        this.body = document.body; // body should always exist
+
         this.sidebar = document.getElementById('sidebar');
+        if (!this.sidebar) console.error("DOM Error: Element with ID 'sidebar' not found.");
+
         this.showSidebarIconContainer = document.getElementById('showSidebarIconContainer');
+        if (!this.showSidebarIconContainer) console.error("DOM Error: Element with ID 'showSidebarIconContainer' not found.");
+
         this.hideSidebarIcon = document.getElementById('hideSidebarIcon');
+        if (!this.hideSidebarIcon) console.error("DOM Error: Element with ID 'hideSidebarIcon' not found.");
+
         this.quizNav = document.getElementById('quiz-nav');
+        if (!this.quizNav) console.error("DOM Error: Element with ID 'quiz-nav' not found.");
+
 
         // New Custom Quiz Mode Dropdown Elements
         this.customQuizModeFilter = document.getElementById('custom-quiz-mode-filter');
+        if (!this.customQuizModeFilter) console.error("DOM Error: Element with ID 'custom-quiz-mode-filter' not found.");
+
         this.quizModeToggle = document.getElementById('quiz-mode-toggle');
+        if (!this.quizModeToggle) console.error("DOM Error: Element with ID 'quiz-mode-toggle' not found.");
+
         this.selectedQuizModeSpan = document.getElementById('selected-quiz-mode');
+        if (!this.selectedQuizModeSpan) console.error("DOM Error: Element with ID 'selected-quiz-mode' not found.");
+
         this.quizModeMenu = document.getElementById('quiz-mode-menu');
-        this.modeDropdownArrow = this.quizModeToggle.querySelector('.dropdown-arrow');
+        if (!this.quizModeMenu) console.error("DOM Error: Element with ID 'quiz-mode-menu' not found.");
+
+        this.modeDropdownArrow = this.quizModeToggle ? this.quizModeToggle.querySelector('.dropdown-arrow') : null;
+        if (!this.modeDropdownArrow && this.quizModeToggle) console.error("DOM Error: Element with class 'dropdown-arrow' not found inside #quiz-mode-toggle.");
+
 
         // New Custom Quiz Source Dropdown Elements
         this.customQuizSourceFilter = document.getElementById('custom-quiz-source-filter');
+        if (!this.customQuizSourceFilter) console.error("DOM Error: Element with ID 'custom-quiz-source-filter' not found.");
+
         this.quizSourceToggle = document.getElementById('quiz-source-toggle');
+        if (!this.quizSourceToggle) console.error("DOM Error: Element with ID 'quiz-source-toggle' not found.");
+
         this.selectedQuizSourceSpan = document.getElementById('selected-quiz-source');
+        if (!this.selectedQuizSourceSpan) console.error("DOM Error: Element with ID 'selected-quiz-source' not found.");
+
         this.quizSourceMenu = document.getElementById('quiz-source-menu');
-        this.sourceDropdownArrow = this.quizSourceToggle.querySelector('.dropdown-arrow');
+        if (!this.quizSourceMenu) console.error("DOM Error: Element with ID 'quiz-source-menu' not found.");
+
+        this.sourceDropdownArrow = this.quizSourceToggle ? this.quizSourceToggle.querySelector('.dropdown-arrow') : null;
+        if (!this.sourceDropdownArrow && this.quizSourceToggle) console.error("DOM Error: Element with class 'dropdown-arrow' not found inside #quiz-source-toggle.");
 
 
         // Custom Type Filter Dropdown Elements
         this.customQuizTypeFilter = document.getElementById('custom-quiz-type-filter');
+        if (!this.customQuizTypeFilter) console.error("DOM Error: Element with ID 'custom-quiz-type-filter' not found.");
+
         this.quizTypeToggle = document.getElementById('quiz-type-toggle');
+        if (!this.quizTypeToggle) console.error("DOM Error: Element with ID 'quiz-type-toggle' not found.");
+
         this.selectedQuizTypeSpan = document.getElementById('selected-quiz-type');
+        if (!this.selectedQuizTypeSpan) console.error("DOM Error: Element with ID 'selected-quiz-type' not found.");
+
         this.quizTypeMenu = document.getElementById('quiz-type-menu');
-        this.typeDropdownArrow = this.quizTypeToggle.querySelector('.dropdown-arrow'); // Changed from dropdownArrow to typeDropdownArrow to distinguish
+        if (!this.quizTypeMenu) console.error("DOM Error: Element with ID 'quiz-type-menu' not found.");
+
+        this.typeDropdownArrow = this.quizTypeToggle ? this.quizTypeToggle.querySelector('.dropdown-arrow') : null; // Changed from dropdownArrow to typeDropdownArrow to distinguish
+        if (!this.typeDropdownArrow && this.quizTypeToggle) console.error("DOM Error: Element with class 'dropdown-arrow' not found inside #quiz-type-toggle.");
+
 
         // New Set Quiz Time Limit Elements
         this.setQuizTimeLimitContainer = document.getElementById('set-quiz-time-limit-container');
+        if (!this.setQuizTimeLimitContainer) console.error("DOM Error: Element with ID 'set-quiz-time-limit-container' not found.");
+
         this.setQuizTimeInput = document.getElementById('set-quiz-time-input');
+        if (!this.setQuizTimeInput) console.error("DOM Error: Element with ID 'set-quiz-time-input' not found.");
+
         // Get the label for "套题时间" to hide/show it
         this.setQuizTimeLimitLabel = document.getElementById('set-quiz-time-limit-label');
+        if (!this.setQuizTimeLimitLabel) console.error("DOM Error: Element with ID 'set-quiz-time-limit-label' not found.");
 
 
         // New Overall Set Quiz Summary Display
         this.setQuizSummaryDisplay = document.getElementById('set-quiz-summary-display');
-        this.overallScorePercentageDisplay = this.setQuizSummaryDisplay.querySelector('.overall-score-percentage');
+        if (!this.setQuizSummaryDisplay) console.error("DOM Error: Element with ID 'set-quiz-summary-display' not found.");
+
+        this.overallScorePercentageDisplay = this.setQuizSummaryDisplay ? this.setQuizSummaryDisplay.querySelector('.overall-score-percentage') : null;
+        if (!this.overallScorePercentageDisplay && this.setQuizSummaryDisplay) console.error("DOM Error: Element with class 'overall-score-percentage' not found inside #set-quiz-summary-display.");
 
         this.quizTitleElement = document.getElementById('quiz-title');
+        if (!this.quizTitleElement) console.error("DOM Error: Element with ID 'quiz-title' not found.");
+
         this.quizTypeElement = document.getElementById('quiz-type');
+        if (!this.quizTypeElement) console.error("DOM Error: Element with ID 'quiz-type' not found.");
+
         this.questionMediaContainer = document.getElementById('question-media-container'); // New media container
+        if (!this.questionMediaContainer) console.error("DOM Error: Element with ID 'question-media-container' not found.");
+
         this.quizContentElement = document.getElementById('quiz-content');
+        if (!this.quizContentElement) console.error("DOM Error: Element with ID 'quiz-content' not found.");
+
         this.optionsContainer = document.getElementById('options-container');
+        if (!this.optionsContainer) console.error("DOM Error: Element with ID 'options-container' not found.");
+
         this.startQuizBtn = document.getElementById('start-quiz-btn');
+        if (!this.startQuizBtn) console.error("DOM Error: Element with ID 'start-quiz-btn' not found.");
+
         this.submitQuizBtn = document.getElementById('submit-quiz-btn');
+        if (!this.submitQuizBtn) console.error("DOM Error: Element with ID 'submit-quiz-btn' not found.");
+
         this.timerDisplay = document.getElementById('timer');
+        if (!this.timerDisplay) console.error("DOM Error: Element with ID 'timer' not found.");
+
         this.scoreDisplay = document.getElementById('score-display'); // Main content score display
+        if (!this.scoreDisplay) console.error("DOM Error: Element with ID 'score-display' not found.");
+
 
         // New navigation buttons for Set Quiz
         this.prevQuestionBtn = document.getElementById('prev-question-btn');
+        if (!this.prevQuestionBtn) console.error("DOM Error: Element with ID 'prev-question-btn' not found.");
+
         this.nextQuestionBtn = document.getElementById('next-question-btn');
+        if (!this.nextQuestionBtn) console.error("DOM Error: Element with ID 'next-question-btn' not found.");
+
 
         // State Variables
         this.quizMode = 'single'; // 'single' or 'set'
@@ -102,10 +170,12 @@ class QuizApp {
         if (quizDataSources.length === 0) {
             console.error("Error: No quiz data sources loaded. Please ensure quiz data files are loaded correctly.");
             // Display a user-friendly message or disable functionality
-            this.quizTitleElement.textContent = "错误：没有找到题库数据。请检查你的题库文件是否正确加载。";
-            this.quizTitleElement.style.color = "#dc3545"; // Red color for error
-            this.startQuizBtn.disabled = true;
-            this.submitQuizBtn.disabled = true;
+            if (this.quizTitleElement) {
+                this.quizTitleElement.textContent = "错误：没有找到题库数据。请检查你的题库文件是否正确加载。";
+                this.quizTitleElement.style.color = "#dc3545"; // Red color for error
+            }
+            if (this.startQuizBtn) this.startQuizBtn.disabled = true;
+            if (this.submitQuizBtn) this.submitQuizBtn.disabled = true;
             return;
         }
 
@@ -118,17 +188,17 @@ class QuizApp {
         this.applyModeUI(); // Apply UI based on initial mode ('single')
 
         // Set initial sidebar state (assuming open by default)
-        this.body.classList.remove('sidebar-hidden');
-        this.sidebar.classList.remove('hidden');
-        this.showSidebarIconContainer.style.display = 'none';
+        if (this.body) this.body.classList.remove('sidebar-hidden');
+        if (this.sidebar) this.sidebar.classList.remove('hidden');
+        if (this.showSidebarIconContainer) this.showSidebarIconContainer.style.display = 'none';
 
         // Set initial display for quiz source
-        if (this.currentQuizData && this.currentQuizData.title) {
+        if (this.currentQuizData && this.currentQuizData.title && this.selectedQuizSourceSpan) {
             this.selectedQuizSourceSpan.textContent = this.currentQuizData.title;
-        } else {
+        } else if (this.selectedQuizSourceSpan) {
             this.selectedQuizSourceSpan.textContent = '选择题库';
         }
-        this.selectedQuizModeSpan.textContent = '单题作答'; // Default mode display
+        if (this.selectedQuizModeSpan) this.selectedQuizModeSpan.textContent = '单题作答'; // Default mode display
         this.selectedQuizMode = 'single'; // Explicitly set default mode
         this.loadQuizNavigation(); // Load navigation based on the initial source and type
     }
@@ -137,55 +207,85 @@ class QuizApp {
      * Adds all necessary event listeners to DOM elements.
      */
     addEventListeners() {
-        this.showSidebarIconContainer.addEventListener('click', this.toggleSidebar.bind(this));
-        this.hideSidebarIcon.addEventListener('click', this.toggleSidebar.bind(this));
+        // Check for existence before adding listeners to avoid 'null' or 'undefined' errors
+        if (this.showSidebarIconContainer) {
+            this.showSidebarIconContainer.addEventListener('click', this.toggleSidebar.bind(this));
+        } else { console.error("Event Listener Error: Element #showSidebarIconContainer not found."); }
 
-        this.startQuizBtn.addEventListener('click', this.startQuiz.bind(this));
-        this.submitQuizBtn.addEventListener('click', this.handleSubmitOrReattempt.bind(this)); // Renamed handler
+        if (this.hideSidebarIcon) {
+            this.hideSidebarIcon.addEventListener('click', this.toggleSidebar.bind(this));
+        } else { console.error("Event Listener Error: Element #hideSidebarIcon not found."); }
+
+        if (this.startQuizBtn) {
+            this.startQuizBtn.addEventListener('click', this.startQuiz.bind(this));
+        } else { console.error("Event Listener Error: Element #start-quiz-btn not found."); }
+
+        if (this.submitQuizBtn) {
+            this.submitQuizBtn.addEventListener('click', this.handleSubmitOrReattempt.bind(this));
+        } else { console.error("Event Listener Error: Element #submit-quiz-btn not found."); }
 
         // Event listeners for custom mode dropdown
-        this.quizModeToggle.addEventListener('click', this.toggleModeDropdown.bind(this));
+        if (this.quizModeToggle) {
+            this.quizModeToggle.addEventListener('click', this.toggleModeDropdown.bind(this));
+        } else { console.error("Event Listener Error: Element #quiz-mode-toggle not found, cannot add dropdown listener."); }
 
         // Event listeners for custom source dropdown
-        this.quizSourceToggle.addEventListener('click', this.toggleSourceDropdown.bind(this));
+        if (this.quizSourceToggle) {
+            this.quizSourceToggle.addEventListener('click', this.toggleSourceDropdown.bind(this));
+        } else { console.error("Event Listener Error: Element #quiz-source-toggle not found, cannot add dropdown listener."); }
 
         // Event listeners for custom type dropdown
-        this.quizTypeToggle.addEventListener('click', this.toggleTypeDropdown.bind(this));
+        if (this.quizTypeToggle) {
+            this.quizTypeToggle.addEventListener('click', this.toggleTypeDropdown.bind(this));
+        } else { console.error("Event Listener Error: Element #quiz-type-toggle not found, cannot add dropdown listener."); }
 
         // Event listeners for set quiz navigation buttons
-        this.prevQuestionBtn.addEventListener('click', this.goToPreviousQuestion.bind(this));
-        this.nextQuestionBtn.addEventListener('click', this.goToNextQuestion.bind(this));
+        if (this.prevQuestionBtn) {
+            this.prevQuestionBtn.addEventListener('click', this.goToPreviousQuestion.bind(this));
+        } else { console.error("Event Listener Error: Element #prev-question-btn not found."); }
+
+        if (this.nextQuestionBtn) {
+            this.nextQuestionBtn.addEventListener('click', this.goToNextQuestion.bind(this));
+        } else { console.error("Event Listener Error: Element #next-question-btn not found."); }
 
         // Close dropdowns if clicked outside
         document.addEventListener('click', (event) => {
-            if (!this.customQuizModeFilter.contains(event.target)) {
+            // These elements are initialized in the constructor, so they might be null only if the initial DOM query failed.
+            if (this.customQuizModeFilter && !this.customQuizModeFilter.contains(event.target)) {
                 this.hideModeDropdown();
             }
-            if (!this.customQuizSourceFilter.contains(event.target)) {
+            if (this.customQuizSourceFilter && !this.customQuizSourceFilter.contains(event.target)) {
                 this.hideSourceDropdown();
             }
-            if (!this.customQuizTypeFilter.contains(event.target)) {
+            if (this.customQuizTypeFilter && !this.customQuizTypeFilter.contains(event.target)) {
                 this.hideTypeDropdown();
             }
         });
 
         // Listen for input changes on the set quiz time input
-        this.setQuizTimeInput.addEventListener('change', (event) => {
-            let value = parseInt(event.target.value);
-            if (isNaN(value) || value < 1) {
-                value = 1; // Minimum time
-            } else if (value > 300) {
-                value = 300; // Maximum time
-            }
-            event.target.value = value;
-            this.setQuizTimeLimit = value;
-        });
+        if (this.setQuizTimeInput) {
+            this.setQuizTimeInput.addEventListener('change', (event) => {
+                let value = parseInt(event.target.value);
+                if (isNaN(value) || value < 1) {
+                    value = 1; // Minimum time
+                } else if (value > 300) {
+                    value = 300; // Maximum time
+                }
+                event.target.value = value;
+                this.setQuizTimeLimit = value;
+            });
+        } else { console.error("Event Listener Error: Element #set-quiz-time-input not found."); }
     }
 
     /**
      * Toggles the visibility of the sidebar.
      */
     toggleSidebar() {
+        if (!this.sidebar || !this.body || !this.showSidebarIconContainer || !this.quizNav) {
+            console.error("Sidebar elements not found, cannot toggle sidebar.");
+            return;
+        }
+
         this.sidebar.classList.toggle('hidden');
         this.body.classList.toggle('sidebar-hidden');
 
@@ -193,6 +293,8 @@ class QuizApp {
             this.showSidebarIconContainer.style.display = 'flex';
         } else {
             this.showSidebarIconContainer.style.display = 'none';
+            // Scroll to top of the quiz navigation when sidebar becomes visible
+            this.quizNav.scrollTop = 0;
         }
     }
 
@@ -200,6 +302,10 @@ class QuizApp {
      * Toggles the visibility of the custom quiz mode dropdown menu.
      */
     toggleModeDropdown() {
+        if (!this.quizModeMenu || !this.quizModeToggle) {
+            console.error("Quiz mode dropdown elements not found, cannot toggle dropdown.");
+            return;
+        }
         this.quizModeMenu.classList.toggle('show');
         this.quizModeToggle.classList.toggle('active');
         this.hideSourceDropdown(); // Close other dropdowns
@@ -210,14 +316,18 @@ class QuizApp {
      * Hides the custom quiz mode dropdown menu.
      */
     hideModeDropdown() {
-        this.quizModeMenu.classList.remove('show');
-        this.quizModeToggle.classList.remove('active');
+        if (this.quizModeMenu) this.quizModeMenu.classList.remove('show');
+        if (this.quizModeToggle) this.quizModeToggle.classList.remove('active');
     }
 
     /**
      * Populates the custom dropdown menu with available quiz modes.
      */
     populateModeFilter() {
+        if (!this.quizModeMenu) {
+            console.error("Quiz mode menu not found, cannot populate mode filter.");
+            return;
+        }
         // Mode options are fixed in HTML, just add event listeners
         this.quizModeMenu.querySelectorAll('li').forEach(option => {
             option.addEventListener('click', () => {
@@ -239,7 +349,7 @@ class QuizApp {
         }
 
         this.quizMode = mode;
-        this.selectedQuizModeSpan.textContent = text;
+        if (this.selectedQuizModeSpan) this.selectedQuizModeSpan.textContent = text;
         this.hideModeDropdown();
 
         // Clear all states and reload UI based on new mode
@@ -254,45 +364,51 @@ class QuizApp {
     applyModeUI() {
         // Hide/show type filter dropdown based on mode
         if (this.quizMode === 'set') {
-            this.customQuizTypeFilter.style.display = 'none';
+            if (this.customQuizTypeFilter) this.customQuizTypeFilter.style.display = 'none';
             // Also hide its label
-            this.customQuizTypeFilter.previousElementSibling.style.display = 'none'; // The span with "选择题型"
+            if (this.customQuizTypeFilter && this.customQuizTypeFilter.previousElementSibling) {
+                this.customQuizTypeFilter.previousElementSibling.style.display = 'none'; // The span with "选择题型"
+            }
 
-            this.setQuizTimeLimitContainer.style.display = 'flex'; // Show time input for set quiz
-            this.setQuizTimeLimitLabel.style.display = 'block'; // Show its label
+            if (this.setQuizTimeLimitContainer) this.setQuizTimeLimitContainer.style.display = 'flex'; // Show time input for set quiz
+            if (this.setQuizTimeLimitLabel) this.setQuizTimeLimitLabel.style.display = 'block'; // Show its label
 
-            this.setQuizSummaryDisplay.style.display = 'none'; // Hide summary display initially for set quiz
+            if (this.setQuizSummaryDisplay) this.setQuizSummaryDisplay.style.display = 'none'; // Hide summary display initially for set quiz
             // Make score display more general for set mode until submission
-            this.scoreDisplay.textContent = '正确率: 未作答';
+            if (this.scoreDisplay) this.scoreDisplay.textContent = '正确率: 未作答';
         } else { // Single mode
-            this.customQuizTypeFilter.style.display = 'block';
+            if (this.customQuizTypeFilter) this.customQuizTypeFilter.style.display = 'block';
             // Show its label
-            this.customQuizTypeFilter.previousElementSibling.style.display = 'block'; // The span with "选择题型"
+            if (this.customQuizTypeFilter && this.customQuizTypeFilter.previousElementSibling) {
+                this.customQuizTypeFilter.previousElementSibling.style.display = 'block'; // The span with "选择题型"
+            }
 
-            this.setQuizTimeLimitContainer.style.display = 'none'; // Hide time input for single quiz
-            this.setQuizTimeLimitLabel.style.display = 'none'; // Hide its label
+            if (this.setQuizTimeLimitContainer) this.setQuizTimeLimitContainer.style.display = 'none'; // Hide time input for single quiz
+            if (this.setQuizTimeLimitLabel) this.setQuizTimeLimitLabel.style.display = 'none'; // Hide its label
 
-            this.setQuizSummaryDisplay.style.display = 'none'; // Always hide for single mode
+            if (this.setQuizSummaryDisplay) this.setQuizSummaryDisplay.style.display = 'none'; // Always hide for single mode
         }
 
         // Hide/show navigation buttons based on mode
         if (this.quizMode === 'set') {
-            this.prevQuestionBtn.style.display = 'inline-block';
-            this.nextQuestionBtn.style.display = 'inline-block';
+            if (this.prevQuestionBtn) this.prevQuestionBtn.style.display = 'inline-block';
+            if (this.nextQuestionBtn) this.nextQuestionBtn.style.display = 'inline-block';
             // Start quiz button should be enabled, nav buttons disabled initially
-            this.startQuizBtn.disabled = false;
-            this.prevQuestionBtn.disabled = true; // Initially disabled
-            this.nextQuestionBtn.disabled = true; // Initially disabled
-            this.submitQuizBtn.disabled = true; // Submit only after starting
+            if (this.startQuizBtn) this.startQuizBtn.disabled = false;
+            if (this.prevQuestionBtn) this.prevQuestionBtn.disabled = true; // Initially disabled
+            if (this.nextQuestionBtn) this.nextQuestionBtn.disabled = true; // Initially disabled
+            if (this.submitQuizBtn) this.submitQuizBtn.disabled = true; // Submit only after starting
         } else {
-            this.prevQuestionBtn.style.display = 'none';
-            this.nextQuestionBtn.style.display = 'none';
+            if (this.prevQuestionBtn) this.prevQuestionBtn.style.display = 'none';
+            if (this.nextQuestionBtn) this.nextQuestionBtn.style.display = 'none';
             // Ensure single mode buttons are reset
-            this.startQuizBtn.disabled = false;
-            this.submitQuizBtn.disabled = true;
-            this.submitQuizBtn.textContent = '交卷';
+            if (this.startQuizBtn) this.startQuizBtn.disabled = false;
+            if (this.submitQuizBtn) {
+                this.submitQuizBtn.disabled = true;
+                this.submitQuizBtn.textContent = '交卷';
+            }
         }
-        this.timerDisplay.textContent = '时间: 00:00'; // Reset timer display
+        if (this.timerDisplay) this.timerDisplay.textContent = '时间: 00:00'; // Reset timer display
     }
 
     /**
@@ -306,12 +422,14 @@ class QuizApp {
         this.setQuizQuestions = []; // Clear set quiz question list
         this.currentSetQuizQuestionIndex = 0; // Reset set quiz navigation index
         this.overallSetQuizScore = { correct: 0, total: 0, percentage: 0 }; // Reset overall set score
-        this.setQuizSummaryDisplay.style.display = 'none'; // Hide summary
-        this.overallScorePercentageDisplay.textContent = ''; // Clear summary text
-        this.overallScorePercentageDisplay.classList.remove('score-high', 'score-mid', 'score-low');
+        if (this.setQuizSummaryDisplay) this.setQuizSummaryDisplay.style.display = 'none'; // Hide summary
+        if (this.overallScorePercentageDisplay) {
+            this.overallScorePercentageDisplay.textContent = ''; // Clear summary text
+            this.overallScorePercentageDisplay.classList.remove('score-high', 'score-mid', 'score-low');
+        }
 
         this.selectedQuizType = 'all'; // Reset type filter
-        this.selectedQuizTypeSpan.textContent = '全部题型';
+        if (this.selectedQuizTypeSpan) this.selectedQuizTypeSpan.textContent = '全部题型';
         this.populateTypeFilter(); // Repopulate type filter based on current source
     }
 
@@ -319,6 +437,10 @@ class QuizApp {
      * Toggles the visibility of the custom quiz source dropdown menu.
      */
     toggleSourceDropdown() {
+        if (!this.quizSourceMenu || !this.quizSourceToggle) {
+            console.error("Quiz source dropdown elements not found, cannot toggle dropdown.");
+            return;
+        }
         this.quizSourceMenu.classList.toggle('show');
         this.quizSourceToggle.classList.toggle('active');
         this.hideModeDropdown(); // Close other dropdowns
@@ -329,14 +451,18 @@ class QuizApp {
      * Hides the custom quiz source dropdown menu.
      */
     hideSourceDropdown() {
-        this.quizSourceMenu.classList.remove('show');
-        this.quizSourceToggle.classList.remove('active');
+        if (this.quizSourceMenu) this.quizSourceMenu.classList.remove('show');
+        if (this.quizSourceToggle) this.quizSourceToggle.classList.remove('active');
     }
 
     /**
      * Toggles the visibility of the custom quiz type dropdown menu.
      */
     toggleTypeDropdown() {
+        if (!this.quizTypeMenu || !this.quizTypeToggle) {
+            console.error("Quiz type dropdown elements not found, cannot toggle dropdown.");
+            return;
+        }
         this.quizTypeMenu.classList.toggle('show');
         this.quizTypeToggle.classList.toggle('active');
         this.hideModeDropdown(); // Close other dropdowns
@@ -347,14 +473,18 @@ class QuizApp {
      * Hides the custom quiz type dropdown menu.
      */
     hideTypeDropdown() {
-        this.quizTypeMenu.classList.remove('show');
-        this.quizTypeToggle.classList.remove('active');
+        if (this.quizTypeMenu) this.quizTypeMenu.classList.remove('show');
+        if (this.quizTypeToggle) this.quizTypeToggle.classList.remove('active');
     }
 
     /**
      * Populates the custom dropdown menu with available quiz data sources.
      */
     populateSourceFilter() {
+        if (!this.quizSourceMenu) {
+            console.error("Quiz source menu not found, cannot populate source filter.");
+            return;
+        }
         this.quizSourceMenu.innerHTML = ''; // Clear existing menu items
 
         quizDataSources.forEach((source, index) => {
@@ -372,7 +502,7 @@ class QuizApp {
      * @param {string} text - The display text of the selected option.
      */
     selectSourceOption(index, text) {
-        this.selectedQuizSourceSpan.textContent = text;
+        if (this.selectedQuizSourceSpan) this.selectedQuizSourceSpan.textContent = text;
         this.selectedQuizSourceIndex = index; // Update the state variable
         this.currentQuizData = quizDataSources[index]; // Update the current quiz data
         this.hideSourceDropdown();
@@ -384,6 +514,10 @@ class QuizApp {
      * Populates the custom dropdown menu with unique quiz types based on the current quiz data.
      */
     populateTypeFilter() {
+        if (!this.quizTypeMenu) {
+            console.error("Quiz type menu not found, cannot populate type filter.");
+            return;
+        }
         const types = new Set();
         if (this.currentQuizData && this.currentQuizData.questions) {
             this.currentQuizData.questions.forEach(quiz => {
@@ -418,7 +552,7 @@ class QuizApp {
      * @param {string} text - The display text of the selected option.
      */
     selectTypeOption(value, text) {
-        this.selectedQuizTypeSpan.textContent = text;
+        if (this.selectedQuizTypeSpan) this.selectedQuizTypeSpan.textContent = text;
         this.selectedQuizType = value; // Update the state variable
         this.hideTypeDropdown();
         this.filterQuizNavigation(); // Apply the filter
@@ -436,6 +570,10 @@ class QuizApp {
      * @param {string} filterType - The type to filter by, or 'all' for no filter (only for single mode).
      */
     loadQuizNavigation(filterType = 'all') {
+        if (!this.quizNav) {
+            console.error("Quiz navigation element not found, cannot load navigation.");
+            return;
+        }
         this.quizNav.innerHTML = '';
         if (!this.currentQuizData || !this.currentQuizData.questions || this.currentQuizData.questions.length === 0) {
             const noQuizzesItem = document.createElement('li');
@@ -455,7 +593,7 @@ class QuizApp {
             // If current filter yields no results, and there are other quizzes, reset to 'all' and reload
             if (quizzesToLoad.length === 0 && this.currentQuizData.questions.length > 0 && filterType !== 'all') {
                 this.selectedQuizType = 'all';
-                this.selectedQuizTypeSpan.textContent = '全部题型';
+                if (this.selectedQuizTypeSpan) this.selectedQuizTypeSpan.textContent = '全部题型';
                 this.loadQuizNavigation('all');
                 return; // Exit to prevent double loading
             }
@@ -541,6 +679,10 @@ class QuizApp {
      * @param {string|number} quizId - The ID of the quiz.
      */
     applyCompletionStatusToNavItem(navItem, quizId) {
+        if (!navItem) {
+            console.error("Navigation item is null, cannot apply completion status.");
+            return;
+        }
         // Remove completion classes from the navItem itself, as we only want to color the score text
         navItem.classList.remove('answered', 'completed-correct', 'completed-incorrect', 'completed-unanswered');
         let scoreInfo = null;
@@ -603,21 +745,23 @@ class QuizApp {
      * Resets the main quiz display area to a blank state.
      */
     resetQuizDisplay() {
-        this.quizTitleElement.textContent = '';
-        this.quizTypeElement.textContent = '';
-        this.questionMediaContainer.innerHTML = ''; // Clear media
-        this.quizContentElement.innerHTML = '';
-        this.optionsContainer.innerHTML = '';
-        this.startQuizBtn.disabled = true;
-        this.submitQuizBtn.disabled = true;
+        if (this.quizTitleElement) this.quizTitleElement.textContent = '';
+        if (this.quizTypeElement) this.quizTypeElement.textContent = '';
+        if (this.questionMediaContainer) this.questionMediaContainer.innerHTML = ''; // Clear media
+        if (this.quizContentElement) this.quizContentElement.innerHTML = '';
+        if (this.optionsContainer) this.optionsContainer.innerHTML = '';
+        if (this.startQuizBtn) this.startQuizBtn.disabled = true;
+        if (this.submitQuizBtn) this.submitQuizBtn.disabled = true;
         // Conditional text for score display based on mode
-        this.scoreDisplay.textContent = this.quizMode === 'set' ? '正确率: 未作答' : '正确率: 0/0 (0%)';
-        this.timerDisplay.textContent = '时间: 00:00';
+        if (this.scoreDisplay) {
+            this.scoreDisplay.textContent = this.quizMode === 'set' ? '正确率: 未作答' : '正确率: 0/0 (0%)';
+        }
+        if (this.timerDisplay) this.timerDisplay.textContent = '时间: 00:00';
         this.currentVideoElement = null; // Clear video reference
-        this.prevQuestionBtn.disabled = true;
-        this.nextQuestionBtn.disabled = true;
-        this.submitQuizBtn.textContent = '交卷'; // Reset submit button text
-        this.scoreDisplay.classList.remove('score-high', 'score-mid', 'score-low');
+        if (this.prevQuestionBtn) this.prevQuestionBtn.disabled = true;
+        if (this.nextQuestionBtn) this.nextQuestionBtn.disabled = true;
+        if (this.submitQuizBtn) this.submitQuizBtn.textContent = '交卷'; // Reset submit button text
+        if (this.scoreDisplay) this.scoreDisplay.classList.remove('score-high', 'score-mid', 'score-low');
     }
 
 
@@ -645,43 +789,52 @@ class QuizApp {
 
         // Reset button states and displays
         this.disableOptions(true); // Pass true to remove all previous highlights/states
-        this.startQuizBtn.disabled = false;
-        this.submitQuizBtn.disabled = true;
-        this.submitQuizBtn.textContent = '交卷'; // Chinese for button
-        this.scoreDisplay.textContent = this.quizMode === 'set' ? '正确率: 未作答' : '正确率: 0/0 (0%)';
-        this.timerDisplay.textContent = '时间: 00:00';
-        this.scoreDisplay.classList.remove('score-high', 'score-mid', 'score-low');
+        if (this.startQuizBtn) this.startQuizBtn.disabled = false;
+        if (this.submitQuizBtn) {
+            this.submitQuizBtn.disabled = true;
+            this.submitQuizBtn.textContent = '交卷'; // Chinese for button
+        }
+        if (this.scoreDisplay) {
+            this.scoreDisplay.textContent = this.quizMode === 'set' ? '正确率: 未作答' : '正确率: 0/0 (0%)';
+            this.scoreDisplay.classList.remove('score-high', 'score-mid', 'score-low');
+        }
+        if (this.timerDisplay) this.timerDisplay.textContent = '时间: 00:00';
+
 
         // Clear question media and content
-        this.questionMediaContainer.innerHTML = '';
-        this.quizContentElement.innerHTML = '';
-        this.optionsContainer.innerHTML = '';
+        if (this.questionMediaContainer) this.questionMediaContainer.innerHTML = '';
+        if (this.quizContentElement) this.quizContentElement.innerHTML = '';
+        if (this.optionsContainer) this.optionsContainer.innerHTML = '';
 
         // Remove highlight from question numbers in content
-        this.quizContentElement.querySelectorAll('.question-num-in-text').forEach(span => {
-            span.classList.remove('highlighted-question-num');
-        });
+        if (this.quizContentElement) {
+            this.quizContentElement.querySelectorAll('.question-num-in-text').forEach(span => {
+                span.classList.remove('highlighted-question-num');
+            });
+        }
 
         // Reset sidebar navigation item styles
-        this.quizNav.querySelectorAll('li').forEach(li => {
-            li.classList.remove('active', 'answered', 'completed-correct', 'completed-incorrect', 'completed-unanswered');
-            // Only remove the score span and the line break if the quiz is NOT in a submitted state
-            // This ensures scores remain visible in review mode
-            if (!this.quizSubmitted) {
-                const scoreSpan = li.querySelector('.nav-item-score');
-                if (scoreSpan) {
-                    if (scoreSpan.previousElementSibling && scoreSpan.previousElementSibling.tagName === 'BR') {
-                        scoreSpan.previousElementSibling.remove(); // Remove the <br> tag
+        if (this.quizNav) {
+            this.quizNav.querySelectorAll('li').forEach(li => {
+                li.classList.remove('active', 'answered', 'completed-correct', 'completed-incorrect', 'completed-unanswered');
+                // Only remove the score span and the line break if the quiz is NOT in a submitted state
+                // This ensures scores remain visible in review mode
+                if (!this.quizSubmitted) {
+                    const scoreSpan = li.querySelector('.nav-item-score');
+                    if(scoreSpan) {
+                        if (scoreSpan.previousElementSibling && scoreSpan.previousElementSibling.tagName === 'BR') {
+                            scoreSpan.previousElementSibling.remove(); // Remove the <br> tag
+                        }
+                        scoreSpan.remove();
                     }
-                    scoreSpan.remove();
                 }
-            }
-        });
+            });
+        }
 
         // Ensure nav buttons are disabled in set mode when quiz state is reset (unless already in submitted review mode)
         if (this.quizMode === 'set' && !this.quizSubmitted) { // Only disable if not in review mode
-            this.prevQuestionBtn.disabled = true;
-            this.nextQuestionBtn.disabled = true;
+            if (this.prevQuestionBtn) this.prevQuestionBtn.disabled = true;
+            if (this.nextQuestionBtn) this.nextQuestionBtn.disabled = true;
         }
     }
 
@@ -723,11 +876,13 @@ class QuizApp {
         } else {
             // If in set quiz answering or review, only clear visual feedback, but keep state for `enableOptions`
             this.disableOptions(true); // Clear only visual classes like selected-choice, correct/incorrect
-            this.quizContentElement.querySelectorAll('.question-num-in-text').forEach(span => {
-                span.classList.remove('highlighted-question-num');
-            });
+            if (this.quizContentElement) {
+                this.quizContentElement.querySelectorAll('.question-num-in-text').forEach(span => {
+                    span.classList.remove('highlighted-question-num');
+                });
+            }
             // Also ensure the "answered" class on sidebar is preserved during navigation
-            const navItem = this.quizNav.querySelector(`li[data-quiz-id="${currentQuiz.id}"]`);
+            const navItem = this.quizNav ? this.quizNav.querySelector(`li[data-quiz-id="${currentQuiz.id}"]`) : null;
             if (navItem && this.setQuizUserAnswers[currentQuiz.id] && Object.keys(this.setQuizUserAnswers[currentQuiz.id]).length > 0) {
                 navItem.classList.add('answered');
             }
@@ -735,19 +890,21 @@ class QuizApp {
 
 
         // Update active state in sidebar navigation
-        Array.from(this.quizNav.children).forEach(li => {
-            li.classList.remove('active');
-            if (li.dataset.quizId == quizId) { // Use == for comparison as dataset is string
-                li.classList.add('active');
-            }
-        });
+        if (this.quizNav) {
+            Array.from(this.quizNav.children).forEach(li => {
+                li.classList.remove('active');
+                if (li.dataset.quizId == quizId) { // Use == for comparison as dataset is string
+                    li.classList.add('active');
+                }
+            });
+        }
 
-        this.quizTitleElement.textContent = currentQuiz.title;
-        this.quizTypeElement.textContent = `类型: ${currentQuiz.type} (${this.mapQuestionTypeToChinese(currentQuiz.questionType)})`;
+        if (this.quizTitleElement) this.quizTitleElement.textContent = currentQuiz.title;
+        if (this.quizTypeElement) this.quizTypeElement.textContent = `类型: ${currentQuiz.type} (${this.mapQuestionTypeToChinese(currentQuiz.questionType)})`;
 
         // Render media if available
-        this.questionMediaContainer.innerHTML = ''; // Clear previous media
-        if (currentQuiz.mediaUrl && currentQuiz.mediaType) {
+        if (this.questionMediaContainer) this.questionMediaContainer.innerHTML = ''; // Clear previous media
+        if (this.questionMediaContainer && currentQuiz.mediaUrl && currentQuiz.mediaType) {
             if (currentQuiz.mediaType === 'video') {
                 const videoElement = document.createElement('video');
                 // Initially set controls to false. They will be enabled upon starting the quiz.
@@ -786,47 +943,52 @@ class QuizApp {
                 }
             });
         }
-        this.quizContentElement.innerHTML = formattedContent;
+        if (this.quizContentElement) this.quizContentElement.innerHTML = formattedContent;
 
 
         // Render options based on question type
-        switch (currentQuiz.questionType) {
-            case 'single-choice':
-            case 'multi-choice':
-            case 'true-false':
-                this.renderChoiceBasedQuestions(currentQuiz);
-                break;
-            case 'fill-in-blank':
-                this.renderFillInBlankQuestion(currentQuiz);
-                break;
-            case 'matching':
-                this.renderMatchingQuestion(currentQuiz);
-                break;
-            default:
-                this.optionsContainer.innerHTML = '<p>不支持的题型。</p>'; // Chinese for unsupported type
-                this.startQuizBtn.disabled = true;
-                this.submitQuizBtn.disabled = true;
-                this.prevQuestionBtn.disabled = true;
-                this.nextQuestionBtn.disabled = true;
-                break;
+        if (this.optionsContainer) {
+            switch (currentQuiz.questionType) {
+                case 'single-choice':
+                case 'multi-choice':
+                case 'true-false':
+                    this.renderChoiceBasedQuestions(currentQuiz);
+                    break;
+                case 'fill-in-blank':
+                    this.renderFillInBlankQuestion(currentQuiz);
+                    break;
+                case 'matching':
+                    this.renderMatchingQuestion(currentQuiz);
+                    break;
+                default:
+                    this.optionsContainer.innerHTML = '<p>不支持的题型。</p>'; // Chinese for unsupported type
+                    if (this.startQuizBtn) this.startQuizBtn.disabled = true;
+                    if (this.submitQuizBtn) this.submitQuizBtn.disabled = true;
+                    if (this.prevQuestionBtn) this.prevQuestionBtn.disabled = true;
+                    if (this.nextQuestionBtn) this.nextQuestionBtn.disabled = true;
+                    break;
+            }
         }
 
+
         // Attach click listeners to question number spans if present
-        this.quizContentElement.querySelectorAll('.question-num-in-text').forEach(span => {
-            span.addEventListener('click', (event) => {
-                const qIndex = parseInt(event.target.dataset.qindex);
-                const targetBlock = this.optionsContainer.querySelector(`.fill-in-blank-input[data-blank-index="${qIndex}"]`) ||
-                                    this.optionsContainer.querySelector(`.question-block[data-question-index="${qIndex}"]`); // Fallback for general question blocks
-                if (targetBlock) {
-                    targetBlock.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                    // Optional: temporarily highlight the block
-                    targetBlock.style.border = '2px solid #87CEEB';
-                    setTimeout(() => {
-                        targetBlock.style.border = '1px solid transparent';
-                    }, 1000);
-                }
+        if (this.quizContentElement) {
+            this.quizContentElement.querySelectorAll('.question-num-in-text').forEach(span => {
+                span.addEventListener('click', (event) => {
+                    const qIndex = parseInt(event.target.dataset.qindex);
+                    const targetBlock = this.optionsContainer.querySelector(`.fill-in-blank-input[data-blank-index="${qIndex}"]`) ||
+                                        this.optionsContainer.querySelector(`.question-block[data-question-index="${qIndex}"]`); // Fallback for general question blocks
+                    if (targetBlock) {
+                        targetBlock.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        // Optional: temporarily highlight the block
+                        targetBlock.style.border = '2px solid #87CEEB';
+                        setTimeout(() => {
+                            targetBlock.style.border = '1px solid transparent';
+                        }, 1000);
+                    }
+                });
             });
-        });
+        }
 
         // Apply saved user answers if available (for set mode before submission)
         if (this.quizMode === 'set' && this.setQuizUserAnswers[currentQuiz.id]) {
@@ -845,8 +1007,8 @@ class QuizApp {
             this.updateNavButtonsState();
         } else if (this.quizMode === 'set' && this.quizSubmitted) {
             // In review mode, nav buttons should always be enabled
-            this.prevQuestionBtn.disabled = false;
-            this.nextQuestionBtn.disabled = false;
+            if (this.prevQuestionBtn) this.prevQuestionBtn.disabled = false;
+            if (this.nextQuestionBtn) this.nextQuestionBtn.disabled = false;
         }
     }
 
@@ -856,6 +1018,10 @@ class QuizApp {
      * @param {object} quizData - The current quiz object.
      */
     renderChoiceBasedQuestions(quizData) {
+        if (!this.optionsContainer) {
+            console.error("Options container not found, cannot render choice-based questions.");
+            return;
+        }
         this.optionsContainer.innerHTML = ''; // Clear previous content
         quizData.options.forEach((option, optionIndex) => {
             const questionBlockDiv = document.createElement('div');
@@ -910,7 +1076,7 @@ class QuizApp {
      * @param {HTMLElement} questionBlockDiv - The DOM element for the current question block.
      */
     handleChoiceAnswer(quizId, type, questionIndex, selectedChoice, questionBlockDiv) {
-        if (!this.quizStarted || this.quizSubmitted) return;
+        if (!this.quizStarted || this.quizSubmitted || !questionBlockDiv) return;
 
         let currentAnswers;
         if (this.quizMode === 'single') {
@@ -926,15 +1092,21 @@ class QuizApp {
             questionBlockDiv.querySelectorAll('.choice-item').forEach(choiceElement => {
                 choiceElement.classList.remove('selected-choice');
             });
-            questionBlockDiv.querySelector(`.choice-item[data-choice="${selectedChoice}"]`).classList.add('selected-choice');
+            const chosenElement = questionBlockDiv.querySelector(`.choice-item[data-choice="${selectedChoice}"]`);
+            if (chosenElement) {
+                chosenElement.classList.add('selected-choice');
+            }
             currentAnswers[questionIndex] = selectedChoice; // Store single string
         } else if (type === 'multi-choice') {
             // For multi-choice, toggle selection
             const currentSelectionElement = questionBlockDiv.querySelector(`.choice-item[data-choice="${selectedChoice}"]`);
-            currentSelectionElement.classList.toggle('selected-choice');
+            if (currentSelectionElement) {
+                currentSelectionElement.classList.toggle('selected-choice');
+            }
+
 
             let subQuestionAnswers = currentAnswers[questionIndex] || [];
-            if (currentSelectionElement.classList.contains('selected-choice')) {
+            if (currentSelectionElement && currentSelectionElement.classList.contains('selected-choice')) {
                 if (!subQuestionAnswers.includes(selectedChoice)) {
                     subQuestionAnswers.push(selectedChoice);
                 }
@@ -945,7 +1117,7 @@ class QuizApp {
         }
 
         // Mark question as "answered" in sidebar for set mode
-        if (this.quizMode === 'set') {
+        if (this.quizMode === 'set' && this.quizNav) {
             const navItem = this.quizNav.querySelector(`li[data-quiz-id="${quizId}"]`);
             if (navItem && !navItem.classList.contains('answered')) { // Only add if not already marked
                 navItem.classList.add('answered');
@@ -953,13 +1125,15 @@ class QuizApp {
         }
 
         // Update highlighted question number in content
-        this.quizContentElement.querySelectorAll('.question-num-in-text').forEach(span => {
-            if (parseInt(span.dataset.qindex) === questionIndex) {
-                span.classList.add('highlighted-question-num');
-            } else {
-                span.classList.remove('highlighted-question-num');
-            }
-        });
+        if (this.quizContentElement) {
+            this.quizContentElement.querySelectorAll('.question-num-in-text').forEach(span => {
+                if (parseInt(span.dataset.qindex) === questionIndex) {
+                    span.classList.add('highlighted-question-num');
+                } else {
+                    span.classList.remove('highlighted-question-num');
+                }
+            });
+        }
         questionBlockDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
@@ -968,6 +1142,10 @@ class QuizApp {
      * @param {object} quizData - The current quiz object.
      */
     renderFillInBlankQuestion(quizData) {
+        if (!this.optionsContainer) {
+            console.error("Options container not found, cannot render fill-in-blank question.");
+            return;
+        }
         this.optionsContainer.innerHTML = ''; // Clear previous content
         // Fill-in-blank usually has only one "option" object for the entire blank sentence
         const option = quizData.options[0];
@@ -1022,7 +1200,7 @@ class QuizApp {
                 const blankIdx = parseInt(event.target.dataset.blankIndex);
                 currentAnswersArray[blankIdx] = event.target.value; // No trim here, trim on submission
                 // Mark question as "answered" in sidebar for set mode if input is not empty
-                if (this.quizMode === 'set') {
+                if (this.quizMode === 'set' && this.quizNav) {
                     const navItem = this.quizNav.querySelector(`li[data-quiz-id="${quizData.id}"]`);
                     if (navItem && !navItem.classList.contains('answered') && event.target.value.trim() !== '') {
                         navItem.classList.add('answered');
@@ -1054,6 +1232,10 @@ class QuizApp {
      * @param {object} quizData - The current quiz object.
      */
     renderMatchingQuestion(quizData) {
+        if (!this.optionsContainer) {
+            console.error("Options container not found, cannot render matching question.");
+            return;
+        }
         this.optionsContainer.innerHTML = ''; // Clear previous content
         // Matching question typically has only one "option" object for all pairs
         const option = quizData.options[0];
@@ -1157,7 +1339,7 @@ class QuizApp {
      * @param {object|Array} savedAnswers - The saved answers for this specific quiz.
      */
     applySavedUserAnswers(quizData, savedAnswers) {
-        if (!savedAnswers) return;
+        if (!savedAnswers || !this.optionsContainer) return;
 
         switch (quizData.questionType) {
             case 'single-choice':
@@ -1244,11 +1426,20 @@ class QuizApp {
         this.quizSubmitted = true; // Set submitted flag
         clearInterval(this.timerInterval); // Stop timer
 
-        this.startQuizBtn.disabled = true; // Start button always disabled after submission
-        this.submitQuizBtn.disabled = false; // Enable submit button for re-attempt
-        this.submitQuizBtn.textContent = '重新作答'; // Change text to Re-attempt
+        if (this.startQuizBtn) this.startQuizBtn.disabled = true; // Start button always disabled after submission
+        if (this.submitQuizBtn) {
+            this.submitQuizBtn.disabled = false; // Enable submit button for re-attempt
+            this.submitQuizBtn.textContent = '重新作答'; // Change text to Re-attempt
+        }
 
-        this.scoreDisplay.classList.remove('score-high', 'score-mid', 'score-low');
+        if (this.scoreDisplay) this.scoreDisplay.classList.remove('score-high', 'score-mid', 'score-low');
+
+
+        if (this.quizContentElement) {
+            this.quizContentElement.querySelectorAll('.question-num-in-text').forEach(span => {
+                span.classList.remove('highlighted-question-num');
+            });
+        }
 
 
         // Determine which set of answers/scores to use
@@ -1265,7 +1456,7 @@ class QuizApp {
         if (!scoreInfo) {
             console.warn(`No score information found for quiz ID: ${quizData.id}. Cannot apply submitted state.`);
             // Fallback for scoreInfo if not found (e.g. if navigating to an unanswered question after submission)
-            scoreInfo = { correct: 0, total: 0, percentage: 0, isCorrect: 'unanswered', time: this.timerDisplay.textContent };
+            scoreInfo = { correct: 0, total: 0, percentage: 0, isCorrect: 'unanswered', time: (this.timerDisplay ? this.timerDisplay.textContent : '00:00') };
             answersToUse = this.setQuizUserAnswers[quizData.id] || {}; // Use whatever user answers might exist
         }
 
@@ -1274,23 +1465,31 @@ class QuizApp {
         const currentTotal = scoreInfo.total;
 
         // Update the main content area's score display to show current question's accuracy
-        this.scoreDisplay.textContent = `正确率: ${currentCorrect}/${currentTotal} (${currentPercentage}%)`;
-        this.scoreDisplay.classList.remove('score-high', 'score-mid', 'score-low');
-        if (currentPercentage >= 90) {
-            this.scoreDisplay.classList.add('score-high');
-        } else if (currentPercentage >= 60) {
-            this.scoreDisplay.classList.add('score-mid');
-        } else {
-            this.scoreDisplay.classList.add('score-low');
+        if (this.scoreDisplay) {
+            this.scoreDisplay.textContent = `正确率: ${currentCorrect}/${currentTotal} (${currentPercentage}%)`;
+            this.scoreDisplay.classList.remove('score-high', 'score-mid', 'score-low');
+            if (currentPercentage >= 90) {
+                this.scoreDisplay.classList.add('score-high');
+            } else if (currentPercentage >= 60) {
+                this.scoreDisplay.classList.add('score-mid');
+            } else {
+                this.scoreDisplay.classList.add('score-low');
+            }
         }
-        this.timerDisplay.textContent = scoreInfo.time || this.timerDisplay.textContent; // Show time taken
+        if (this.timerDisplay) this.timerDisplay.textContent = scoreInfo.time || this.timerDisplay.textContent; // Show time taken
 
         // Display explanation and visual feedback for the current question
+        if (!this.optionsContainer) {
+            console.error("Options container not found, cannot apply submitted state for current question.");
+            return;
+        }
+
         switch (quizData.questionType) {
             case 'single-choice':
             case 'true-false':
                 quizData.options.forEach((optionData, optionIndex) => {
                     const questionBlockDiv = this.optionsContainer.querySelector(`.question-block[data-question-index="${optionIndex}"]`);
+                    if (!questionBlockDiv) return;
                     const correctAnswer = optionData.answer;
                     const userAnswer = answersToUse[optionIndex];
 
@@ -1314,6 +1513,7 @@ class QuizApp {
             case 'multi-choice':
                 quizData.options.forEach((optionData, optionIndex) => {
                     const questionBlockDiv = this.optionsContainer.querySelector(`.question-block[data-question-index="${optionIndex}"]`);
+                    if (!questionBlockDiv) return;
                     const correctAnswers = Array.isArray(optionData.answer) ? optionData.answer.sort() : [];
                     const userAnswers = (answersToUse[optionIndex] || []).sort();
 
@@ -1338,6 +1538,7 @@ class QuizApp {
             case 'fill-in-blank':
                 const fillInBlankOptionData = quizData.options[0];
                 const fillInBlankQuestionBlockDiv = this.optionsContainer.querySelector(`.question-block[data-question-index="0"]`);
+                if (!fillInBlankQuestionBlockDiv) return;
                 const correctAnswersArray = fillInBlankOptionData.answer;
                 const userInputsArray = answersToUse[0] || new Array(fillInBlankOptionData.blankCount).fill('');
 
@@ -1369,27 +1570,30 @@ class QuizApp {
                     fillInBlankExplanationContent += `</p>`;
                 }
                 fillInBlankExplanationContent += `<span class="explanation-text">解析: ${fillInBlankOptionData.explanation}</span></div>`;
-                fillInBlankQuestionBlockDiv.querySelector('.question-explanation').innerHTML = fillInBlankExplanationContent;
-                fillInBlankQuestionBlockDiv.querySelector('.question-explanation').style.display = 'block';
+                const explanationEl = fillInBlankQuestionBlockDiv.querySelector('.question-explanation');
+                if (explanationEl) {
+                    explanationEl.innerHTML = fillInBlankExplanationContent;
+                    explanationEl.style.display = 'block';
+                }
                 break;
             case 'matching':
                 const correctMappings = quizData.options[0].answer; // The object of correct pairs
                 const userMappings = answersToUse[0] || {}; // User's matched pairs for the single matching question
 
                 const matchingQuestionBlockDiv = this.optionsContainer.querySelector(`.question-block[data-question-index="0"]`);
+                if (!matchingQuestionBlockDiv) return;
 
-                // Disable all matching items and clear styles first
                 matchingQuestionBlockDiv.querySelectorAll('.matching-item').forEach(item => {
                     item.classList.add('disabled');
                     item.style.pointerEvents = 'none';
                     item.draggable = false;
                     item.classList.remove('matching-selected-left', 'matching-selected-right', 'matching-connected', 'matching-incorrect', 'correct-choice');
                 });
-                // Hide the user pairs display area during review
                 const userPairsDisplay = matchingQuestionBlockDiv.querySelector('.matching-user-pairs-display');
                 if (userPairsDisplay) {
                     userPairsDisplay.style.display = 'none';
                 }
+
 
                 let matchingExplanationContent = `<div class="explanation-item"><h4>连线结果：</h4>`;
                 matchingExplanationContent += `<div class="matching-explanation-grid">`;
@@ -1423,15 +1627,18 @@ class QuizApp {
                 }
                 matchingExplanationContent += `</div>`;
                 matchingExplanationContent += `<span class="explanation-text">解析: ${quizData.options[0].explanation}</span></div>`;
-                matchingQuestionBlockDiv.querySelector('.question-explanation').innerHTML = matchingExplanationContent;
-                matchingQuestionBlockDiv.querySelector('.question-explanation').style.display = 'block';
+                const matchingExplanationEl = matchingQuestionBlockDiv.querySelector('.question-explanation');
+                if (matchingExplanationEl) {
+                    matchingExplanationEl.innerHTML = matchingExplanationContent;
+                    matchingExplanationEl.style.display = 'block';
+                }
                 break;
         }
 
         // After submission, ensure nav buttons are enabled for review
         if (this.quizMode === 'set' && this.quizSubmitted) {
-            this.prevQuestionBtn.disabled = false;
-            this.nextQuestionBtn.disabled = false;
+            if (this.prevQuestionBtn) this.prevQuestionBtn.disabled = false;
+            if (this.nextQuestionBtn) this.nextQuestionBtn.disabled = false;
         }
     }
 
@@ -1502,7 +1709,7 @@ class QuizApp {
      * @param {HTMLElement} dropTargetItem - The right item element that was dropped on.
      */
     handleDrop(event, quizId, questionIndex, dropTargetItem) {
-        if (!this.quizStarted || this.quizSubmitted) return;
+        if (!this.quizStarted || this.quizSubmitted || !dropTargetItem) return;
 
         event.preventDefault();
         event.target.classList.remove('drag-over'); // Remove highlight
@@ -1538,7 +1745,7 @@ class QuizApp {
             dropTargetItem.style.pointerEvents = 'none'; // Ensure it's not clickable
 
             // Mark question as "answered" in sidebar for set mode if a pair is made
-            if (this.quizMode === 'set') {
+            if (this.quizMode === 'set' && this.quizNav) {
                 const navItem = this.quizNav.querySelector(`li[data-quiz-id="${quizId}"]`);
                 if (navItem && !navItem.classList.contains('answered')) {
                     navItem.classList.add('answered');
@@ -1556,6 +1763,10 @@ class QuizApp {
      * @param {number} questionIndex - The index of the matching question.
      */
     updateMatchingUserPairsDisplay(quizId, questionIndex) {
+        if (!this.optionsContainer) {
+            console.error("Options container not found, cannot update matching user pairs display.");
+            return;
+        }
         const questionBlockDiv = this.optionsContainer.querySelector(`.question-block[data-question-index="${questionIndex}"]`);
         if (!questionBlockDiv) return;
 
@@ -1574,6 +1785,10 @@ class QuizApp {
         const currentQuiz = this.quizMode === 'single' ?
             this.currentQuizData.questions[this.currentQuizIndex] :
             this.setQuizQuestions[this.currentSetQuizQuestionIndex];
+        if (!currentQuiz || !currentQuiz.options[0]) {
+             console.warn("Current quiz or its options not found for matching display update.");
+             return;
+        }
 
         // This assumes options[0] for matching question
         const allLeftItems = currentQuiz.options[0].pairs.map(p => p.left);
@@ -1621,7 +1836,7 @@ class QuizApp {
                     } else {
                         delete this.setQuizUserAnswers[quizId][questionIndex][leftValue];
                         // If no more answers for this question, remove 'answered' class
-                        if (Object.keys(this.setQuizUserAnswers[quizId][questionIndex]).length === 0) {
+                        if (Object.keys(this.setQuizUserAnswers[quizId][questionIndex] || {}).length === 0 && this.quizNav) {
                             const navItem = this.quizNav.querySelector(`li[data-quiz-id="${quizId}"]`);
                             if (navItem) navItem.classList.remove('answered');
                         }
@@ -1655,22 +1870,27 @@ class QuizApp {
         this.startTime = Date.now();
         clearInterval(this.timerInterval); // Clear any existing timer
         this.timerInterval = setInterval(this.updateTimer.bind(this), 1000);
-        this.startQuizBtn.disabled = true;
-        this.submitQuizBtn.disabled = false;
-        this.submitQuizBtn.textContent = '交卷'; // Chinese for button
+        if (this.startQuizBtn) this.startQuizBtn.disabled = true;
+        if (this.submitQuizBtn) {
+            this.submitQuizBtn.disabled = false;
+            this.submitQuizBtn.textContent = '交卷'; // Chinese for button
+        }
+
 
         // Reset sidebar completion classes on start - this will now also clear scores
-        this.quizNav.querySelectorAll('li').forEach(li => {
-            li.classList.remove('completed-correct', 'completed-incorrect', 'completed-unanswered', 'answered');
-            // Remove the score span and the line break
-            const scoreSpan = li.querySelector('.nav-item-score');
-            if(scoreSpan) {
-                if (scoreSpan.previousElementSibling && scoreSpan.previousElementSibling.tagName === 'BR') {
-                    scoreSpan.previousElementSibling.remove(); // Remove the <br> tag
+        if (this.quizNav) {
+            this.quizNav.querySelectorAll('li').forEach(li => {
+                li.classList.remove('completed-correct', 'completed-incorrect', 'completed-unanswered', 'answered');
+                // Remove the score span and the line break
+                const scoreSpan = li.querySelector('.nav-item-score');
+                if(scoreSpan) {
+                    if (scoreSpan.previousElementSibling && scoreSpan.previousElementSibling.tagName === 'BR') {
+                        scoreSpan.previousElementSibling.remove(); // Remove the <br> tag
+                    }
+                    scoreSpan.remove();
                 }
-                scoreSpan.remove();
-            }
-        });
+            });
+        }
 
 
         // Play video and enable controls if present
@@ -1683,25 +1903,25 @@ class QuizApp {
         }
 
         // Hide sidebar automatically on quiz start
-        if (!this.sidebar.classList.contains('hidden')) {
+        if (this.sidebar && this.body && this.showSidebarIconContainer && !this.sidebar.classList.contains('hidden')) {
             this.sidebar.classList.add('hidden');
             this.body.classList.add('sidebar-hidden');
             this.showSidebarIconContainer.style.display = 'flex';
         }
 
-        this.scoreDisplay.classList.remove('score-high', 'score-mid', 'score-low'); // Remove previous score styling
+        if (this.scoreDisplay) this.scoreDisplay.classList.remove('score-high', 'score-mid', 'score-low'); // Remove previous score styling
 
         // For set quiz mode, load the first question and enable navigation buttons
         if (this.quizMode === 'set') {
             this.setQuizUserAnswers = {}; // Clear previous answers for a new attempt
             this.setQuizScoreData = {}; // Clear previous score data
             this.overallSetQuizScore = { correct: 0, total: 0, percentage: 0 }; // Reset overall score
-            this.setQuizSummaryDisplay.style.display = 'none'; // Hide summary display
+            if (this.setQuizSummaryDisplay) this.setQuizSummaryDisplay.style.display = 'none'; // Hide summary display
             this.currentSetQuizQuestionIndex = 0;
             if (this.setQuizQuestions.length > 0) {
                 this.loadQuiz(this.setQuizQuestions[0].id);
                 this.updateNavButtonsState(); // Update prev/next button state
-                this.scoreDisplay.textContent = '正确率: 未作答'; // Reset for set quiz
+                if (this.scoreDisplay) this.scoreDisplay.textContent = '正确率: 未作答'; // Reset for set quiz
             } else {
                 console.warn("No questions loaded for set quiz.");
                 this.resetQuizDisplay();
@@ -1710,7 +1930,7 @@ class QuizApp {
             this.userAnswers = {}; // Clear previous answers
             this.quizScores = {}; // Clear previous scores
             // Options are already enabled by loadQuiz/render methods
-            this.scoreDisplay.textContent = '正确率: 未作答'; // For single quiz, until submitted
+            if (this.scoreDisplay) this.scoreDisplay.textContent = '正确率: 未作答'; // For single quiz, until submitted
             this.enableOptions(); // Explicitly enable for single mode if not done by loadQuiz
         }
     }
@@ -1719,6 +1939,8 @@ class QuizApp {
      * Updates the timer display every second.
      */
     updateTimer() {
+        if (!this.timerDisplay) return;
+
         const elapsedTime = Date.now() - this.startTime;
         let totalSeconds = Math.floor(elapsedTime / 1000);
 
@@ -1778,7 +2000,7 @@ class QuizApp {
         const currentQuiz = this.quizMode === 'single' ?
             this.currentQuizData.questions[this.currentQuizIndex] :
             this.setQuizQuestions[this.currentSetQuizQuestionIndex];
-        if (!currentQuiz) return;
+        if (!currentQuiz || !this.optionsContainer) return;
 
         // Pause and disable video controls if present
         if (this.currentVideoElement) {
@@ -1833,7 +2055,7 @@ class QuizApp {
         const currentQuiz = this.quizMode === 'single' ?
             this.currentQuizData.questions[this.currentQuizIndex] :
             this.setQuizQuestions[this.currentSetQuizQuestionIndex];
-        if (!currentQuiz) return;
+        if (!currentQuiz || !this.optionsContainer) return;
 
         // Pause and disable video controls if present
         if (this.currentVideoElement) {
@@ -1877,9 +2099,11 @@ class QuizApp {
         this.optionsContainer.querySelectorAll('.question-explanation').forEach(explanationDiv => {
             explanationDiv.style.display = 'none';
         });
-        this.quizContentElement.querySelectorAll('.question-num-in-text').forEach(span => {
-            span.classList.remove('highlighted-question-num');
-        });
+        if (this.quizContentElement) {
+            this.quizContentElement.querySelectorAll('.question-num-in-text').forEach(span => {
+                span.classList.remove('highlighted-question-num');
+            });
+        }
     }
 
     /**
@@ -1887,8 +2111,12 @@ class QuizApp {
      */
     handleSubmitOrReattempt() {
         const currentQuizDataFromState = this.quizMode === 'single' ?
-            this.currentQuizData.questions[this.currentQuizIndex] :
-            this.setQuizQuestions[this.currentSetQuizQuestionIndex]; // Get the current question for context
+            (this.currentQuizData && this.currentQuizData.questions[this.currentQuizIndex]) :
+            (this.setQuizQuestions && this.setQuizQuestions[this.currentSetQuizQuestionIndex]); // Get the current question for context
+        if (!currentQuizDataFromState) {
+            console.error("No current quiz data to handle submission/re-attempt.");
+            return;
+        }
 
         if (!this.quizStarted && !this.quizSubmitted) {
             console.warn("Quiz not started yet. Please click '开始作答' first.");
@@ -1900,15 +2128,21 @@ class QuizApp {
             this.quizSubmitted = true; // Mark as submitted
             this.quizStarted = false; // Stop the active answering state
 
-            this.startQuizBtn.disabled = true; // Disable Start button
-            this.submitQuizBtn.disabled = false; // Keep Submit button enabled for re-attempt
-            this.submitQuizBtn.textContent = '重新作答'; // Change text to Re-attempt
+            if (this.startQuizBtn) this.startQuizBtn.disabled = true; // Disable Start button
+            if (this.submitQuizBtn) {
+                this.submitQuizBtn.disabled = false; // Keep Submit button enabled for re-attempt
+                this.submitQuizBtn.textContent = '重新作答'; // Change text to Re-attempt
+            }
+
 
             this.disableOptions(); // Disable all options after submission
 
-            this.quizContentElement.querySelectorAll('.question-num-in-text').forEach(span => {
-                span.classList.remove('highlighted-question-num');
-            });
+            if (this.quizContentElement) {
+                this.quizContentElement.querySelectorAll('.question-num-in-text').forEach(span => {
+                    span.classList.remove('highlighted-question-num');
+                });
+            }
+
 
             if (this.quizMode === 'single') {
                 this.evaluateSingleQuizSubmission(currentQuizDataFromState);
@@ -1920,11 +2154,17 @@ class QuizApp {
                 const currentQuizInSet = this.setQuizQuestions[this.currentSetQuizQuestionIndex];
                 this.loadQuiz(currentQuizInSet.id); // Re-load to show current question's results
 
-                // Show sidebar automatically after submission
-                if (this.sidebar.classList.contains('hidden')) {
+                // Show sidebar automatically after submission and select first item if present
+                if (this.sidebar && this.body && this.showSidebarIconContainer && this.sidebar.classList.contains('hidden')) {
                     this.sidebar.classList.remove('hidden');
                     this.body.classList.remove('sidebar-hidden');
                     this.showSidebarIconContainer.style.display = 'none';
+                }
+                // Select the first item in navigation and scroll to it
+                if (this.quizNav && this.quizNav.children.length > 0) {
+                    const firstNavItem = this.quizNav.children[0];
+                    firstNavItem.click(); // Simulate click to load and highlight
+                    this.quizNav.scrollTop = 0; // Scroll to top
                 }
             }
 
@@ -1932,8 +2172,10 @@ class QuizApp {
             // For single mode, clear score for current quiz.
             // For set mode, clear all set quiz scores and answers.
             if (this.quizMode === 'single') {
-                delete this.quizScores[currentQuizDataFromState.id];
-                const navItem = this.quizNav.querySelector(`li[data-original-index="${this.currentQuizIndex}"]`);
+                if (currentQuizDataFromState && this.quizScores[currentQuizDataFromState.id]) {
+                    delete this.quizScores[currentQuizDataFromState.id];
+                }
+                const navItem = this.quizNav ? this.quizNav.querySelector(`li[data-original-index="${this.currentQuizIndex}"]`) : null;
                 if (navItem) {
                     navItem.classList.remove('completed-correct', 'completed-incorrect', 'completed-unanswered');
                     // Remove the score span and the line break
@@ -1950,14 +2192,16 @@ class QuizApp {
                 this.setQuizUserAnswers = {}; // Clear all previous user answers for the set
                 this.setQuizScoreData = {}; // Clear all previous score data for the set
                 this.overallSetQuizScore = { correct: 0, total: 0, percentage: 0 }; // Reset overall score
-                this.setQuizSummaryDisplay.style.display = 'none'; // Hide summary display
-                this.overallScorePercentageDisplay.textContent = ''; // Clear summary text
-                this.overallScorePercentageDisplay.classList.remove('score-high', 'score-mid', 'score-low');
+                if (this.setQuizSummaryDisplay) this.setQuizSummaryDisplay.style.display = 'none'; // Hide summary display
+                if (this.overallScorePercentageDisplay) {
+                    this.overallScorePercentageDisplay.textContent = ''; // Clear summary text
+                    this.overallScorePercentageDisplay.classList.remove('score-high', 'score-mid', 'score-low');
+                }
                 this.currentSetQuizQuestionIndex = 0; // Reset to the first question
                 this.quizSubmitted = false; // Reset submitted flag
                 this.quizStarted = false; // Reset started flag
                 this.startQuiz(); // Restart the set quiz from scratch
-                this.submitQuizBtn.textContent = '交卷'; // Reset button text
+                if (this.submitQuizBtn) this.submitQuizBtn.textContent = '交卷'; // Reset button text
             }
         }
     }
@@ -1969,6 +2213,10 @@ class QuizApp {
     evaluateSingleQuizSubmission(quizData) {
         let correctCount = 0;
         let totalQuestions = 0;
+        if (!this.optionsContainer || !this.scoreDisplay || !this.timerDisplay) {
+            console.error("Missing critical elements for evaluation.");
+            return;
+        }
 
         switch (quizData.questionType) {
             case 'single-choice':
@@ -1976,6 +2224,7 @@ class QuizApp {
                 totalQuestions = quizData.options.length;
                 quizData.options.forEach((optionData, optionIndex) => {
                     const questionBlockDiv = this.optionsContainer.querySelector(`.question-block[data-question-index="${optionIndex}"]`);
+                    if (!questionBlockDiv) return;
                     const correctAnswer = optionData.answer;
                     const userAnswer = this.userAnswers[optionIndex];
 
@@ -2004,6 +2253,7 @@ class QuizApp {
                 totalQuestions = quizData.options.length;
                 quizData.options.forEach((optionData, optionIndex) => {
                     const questionBlockDiv = this.optionsContainer.querySelector(`.question-block[data-question-index="${optionIndex}"]`);
+                    if (!questionBlockDiv) return;
                     const correctAnswers = Array.isArray(optionData.answer) ? optionData.answer.sort() : [];
                     const userAnswers = (this.userAnswers[optionIndex] || []).sort();
 
@@ -2033,6 +2283,7 @@ class QuizApp {
                 totalQuestions = quizData.options[0].blankCount;
                 const fillInBlankOptionData = quizData.options[0];
                 const fillInBlankQuestionBlockDiv = this.optionsContainer.querySelector(`.question-block[data-question-index="0"]`);
+                if (!fillInBlankQuestionBlockDiv) return;
                 const correctAnswersArray = fillInBlankOptionData.answer;
                 const userInputsArray = this.userAnswers[0] || new Array(totalQuestions).fill('');
 
@@ -2045,14 +2296,16 @@ class QuizApp {
 
                     const isBlankCorrect = (userInput === correctAnswer);
 
-                    inputElement.disabled = true;
-                    inputElement.classList.add('disabled');
+                    if (inputElement) {
+                        inputElement.disabled = true;
+                        inputElement.classList.add('disabled');
 
-                    if (isBlankCorrect) {
-                        inputElement.classList.add('correct');
-                        correctCount++;
-                    } else {
-                        inputElement.classList.add('incorrect');
+                        if (isBlankCorrect) {
+                            inputElement.classList.add('correct');
+                            correctCount++;
+                        } else {
+                            inputElement.classList.add('incorrect');
+                        }
                     }
 
                     fillInBlankExplanationContent += `<p>填空 ${i + 1}: `;
@@ -2064,8 +2317,11 @@ class QuizApp {
                     fillInBlankExplanationContent += `</p>`;
                 }
                 fillInBlankExplanationContent += `<span class="explanation-text">解析: ${fillInBlankOptionData.explanation}</span></div>`;
-                fillInBlankQuestionBlockDiv.querySelector('.question-explanation').innerHTML = fillInBlankExplanationContent;
-                fillInBlankQuestionBlockDiv.querySelector('.question-explanation').style.display = 'block';
+                const explanationEl = fillInBlankQuestionBlockDiv.querySelector('.question-explanation');
+                if (explanationEl) {
+                    explanationEl.innerHTML = fillInBlankExplanationContent;
+                    explanationEl.style.display = 'block';
+                }
                 break;
 
             case 'matching':
@@ -2074,6 +2330,7 @@ class QuizApp {
                 const userMappings = this.userAnswers[0] || {};
 
                 const matchingQuestionBlockDiv = this.optionsContainer.querySelector(`.question-block[data-question-index="0"]`);
+                if (!matchingQuestionBlockDiv) return;
 
                 matchingQuestionBlockDiv.querySelectorAll('.matching-item').forEach(item => {
                     item.classList.add('disabled');
@@ -2120,8 +2377,11 @@ class QuizApp {
                 }
                 matchingExplanationContent += `</div>`;
                 matchingExplanationContent += `<span class="explanation-text">解析: ${quizData.options[0].explanation}</span></div>`;
-                matchingQuestionBlockDiv.querySelector('.question-explanation').innerHTML = matchingExplanationContent;
-                matchingQuestionBlockDiv.querySelector('.question-explanation').style.display = 'block';
+                const matchingExplanationEl = matchingQuestionBlockDiv.querySelector('.question-explanation');
+                if (matchingExplanationEl) {
+                    matchingExplanationEl.innerHTML = matchingExplanationContent;
+                    matchingExplanationEl.style.display = 'block';
+                }
                 break;
         }
 
@@ -2139,7 +2399,7 @@ class QuizApp {
         }
 
         // Mark quiz as completed in navigation
-        const navItem = this.quizNav.querySelector(`li[data-original-index="${this.currentQuizIndex}"]`);
+        const navItem = this.quizNav ? this.quizNav.querySelector(`li[data-original-index="${this.currentQuizIndex}"]`) : null;
         if (navItem) {
             this.applyCompletionStatusToNavItem(navItem, quizData.id);
         }
@@ -2160,7 +2420,7 @@ class QuizApp {
     evaluateSetQuizSubmission() {
         let totalCorrectQuestions = 0;
         let totalSubQuestionsInSet = 0; // Total individual sub-questions across the entire set
-        let setOverallTime = this.timerDisplay.textContent;
+        let setOverallTime = this.timerDisplay ? this.timerDisplay.textContent : '00:00';
 
         this.setQuizScoreData = {}; // Clear previous set score data
 
@@ -2288,12 +2548,14 @@ class QuizApp {
         });
 
         // Update sidebar navigation for all quizzes in the set
-        this.setQuizQuestions.forEach(quiz => {
-            const navItem = this.quizNav.querySelector(`li[data-quiz-id="${quiz.id}"]`);
-            if (navItem) {
-                this.applyCompletionStatusToNavItem(navItem, quiz.id);
-            }
-        });
+        if (this.quizNav) {
+            this.setQuizQuestions.forEach(quiz => {
+                const navItem = this.quizNav.querySelector(`li[data-quiz-id="${quiz.id}"]`);
+                if (navItem) {
+                    this.applyCompletionStatusToNavItem(navItem, quiz.id);
+                }
+            });
+        }
 
         // Calculate and update overall set quiz score
         this.overallSetQuizScore.correct = totalCorrectQuestions;
@@ -2301,15 +2563,17 @@ class QuizApp {
         this.overallSetQuizScore.percentage = totalSubQuestionsInSet === 0 ? 0 : ((totalCorrectQuestions / totalSubQuestionsInSet) * 100).toFixed(2);
 
         // Display overall set quiz score in the dedicated sidebar element
-        this.setQuizSummaryDisplay.style.display = 'flex'; // Show the summary display
-        this.overallScorePercentageDisplay.textContent = `正确率: ${this.overallSetQuizScore.percentage}% (${this.overallSetQuizScore.correct}/${this.overallSetQuizScore.total})`;
-        this.overallScorePercentageDisplay.classList.remove('score-high', 'score-mid', 'score-low');
-        if (this.overallSetQuizScore.percentage >= 90) {
-            this.overallScorePercentageDisplay.classList.add('score-high');
-        } else if (this.overallSetQuizScore.percentage >= 60) {
-            this.overallScorePercentageDisplay.classList.add('score-mid');
-        } else {
-            this.overallScorePercentageDisplay.classList.add('score-low');
+        if (this.setQuizSummaryDisplay) this.setQuizSummaryDisplay.style.display = 'flex'; // Show the summary display
+        if (this.overallScorePercentageDisplay) {
+            this.overallScorePercentageDisplay.textContent = `正确率: ${this.overallSetQuizScore.percentage}% (${this.overallSetQuizScore.correct}/${this.overallSetQuizScore.total})`;
+            this.overallScorePercentageDisplay.classList.remove('score-high', 'score-mid', 'score-low');
+            if (this.overallSetQuizScore.percentage >= 90) {
+                this.overallScorePercentageDisplay.classList.add('score-high');
+            } else if (this.overallSetQuizScore.percentage >= 60) {
+                this.overallScorePercentageDisplay.classList.add('score-mid');
+            } else {
+                this.overallScorePercentageDisplay.classList.add('score-low');
+            }
         }
     }
 
@@ -2511,16 +2775,16 @@ class QuizApp {
     updateNavButtonsState() {
         // If in review mode (quizSubmitted is true), buttons should always be enabled.
         if (this.quizMode === 'set' && this.quizSubmitted) {
-            this.prevQuestionBtn.disabled = false;
-            this.nextQuestionBtn.disabled = false;
+            if (this.prevQuestionBtn) this.prevQuestionBtn.disabled = false;
+            if (this.nextQuestionBtn) this.nextQuestionBtn.disabled = false;
             return;
         }
 
         // Normal answering mode
         if (this.quizMode !== 'set' || !this.quizStarted) return; // Only for active set quiz
 
-        this.prevQuestionBtn.disabled = (this.currentSetQuizQuestionIndex === 0);
-        this.nextQuestionBtn.disabled = (this.currentSetQuizQuestionIndex === this.setQuizQuestions.length - 1);
+        if (this.prevQuestionBtn) this.prevQuestionBtn.disabled = (this.currentSetQuizQuestionIndex === 0);
+        if (this.nextQuestionBtn) this.nextQuestionBtn.disabled = (this.currentSetQuizQuestionIndex === this.setQuizQuestions.length - 1);
     }
 }
 
