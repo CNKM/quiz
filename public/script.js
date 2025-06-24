@@ -2197,7 +2197,14 @@ class QuizApp {
             scoreSpan.remove();
           }
         }
+        if (this.scoreDisplay) {
+          this.scoreDisplay.textContent = "正确率: 未作答";
+          this.scoreDisplay.classList.remove("score-high", "score-mid", "score-low");
+        }
+        this.quizSubmitted = false;
+        this.quizStarted = false;
         this.loadQuiz(currentQuizDataFromState.id); // Reload the current single quiz to reset everything
+        this.enableOptions();
       } else {
         // 'set' mode re-attempt
         this.setQuizUserAnswers = {}; // Clear all previous user answers for the set
