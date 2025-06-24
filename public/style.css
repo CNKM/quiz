@@ -324,8 +324,8 @@ html {
 }
 
 .quiz-nav li {
-    padding: 2px 15px; /* Further reduced padding-top/bottom to make items shorter */
-    margin-bottom: 1px; /* Further reduced margin-bottom for tighter spacing */
+    padding: 12px 15px; /* Further reduced padding-top/bottom to make items shorter */
+    margin-bottom: 15px; /* 增大每个题块之间的间距 */
     background-color: #3a3a3a; /* Darker background for nav items */
     border-radius: 8px;
     cursor: pointer;
@@ -337,6 +337,8 @@ html {
     word-wrap: break-word; /* Break long words */
     overflow-wrap: break-word; /* Modern property for word breaking */
     word-break: break-all; /* Ensure long words break if needed */
+    font-size: 1.25em;   /* 增大字体 */
+   
 }
 
 .quiz-nav li:hover {
@@ -400,6 +402,10 @@ html {
 }
 .quiz-nav li.completed-unanswered .nav-item-score {
     color: #333; /* Ensure score is visible on amber background */
+}
+
+.quiz-nav-score-separator {
+   margin-top: 3px;
 }
 
 
@@ -498,6 +504,12 @@ body.sidebar-hidden .main-content {
     flex-grow: 1; /* Allows content to grow and take space within the scroll wrapper */
 }
 
+/* 增大字体和扩大行间距 */
+.quiz-content {
+    font-size: 1.5em; /* 增大字体 */
+    line-height: 1.8; /* 扩大行间距 */
+}
+
 /* Highlighted question number within the main content */
 .question-content .question-num-in-text {
     color: #87CEEB; /* Light blue for highlighting */
@@ -589,7 +601,7 @@ body.sidebar-hidden .main-content {
     background-color: #3a3a3a;
     padding: 10px 14px; /* Increased padding for more background space */
     border-radius: 8px;
-    width: 110px; /* Adjusted width for each display */
+  
     text-align: center;
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
     white-space: nowrap; /* Prevent text from wrapping */
