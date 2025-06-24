@@ -22,30 +22,60 @@
         <div id="sidebar" class="sidebar">
             <div class="sidebar-header">
                 <h2>测验导航 <i id="hideSidebarIcon" class="fas fa-chevron-circle-left"></i></h2>
+                <!-- New Custom Quiz Mode Dropdown -->
+                <span class="sidebar-control-label">作题模式:</span>
+                <div class="custom-dropdown" id="custom-quiz-mode-filter">
+                    <div class="dropdown-toggle" id="quiz-mode-toggle">
+                        <span id="selected-quiz-mode">选择模式</span>
+                        <i class="fas fa-chevron-down dropdown-arrow"></i>
+                    </div>
+                    <ul class="dropdown-menu" id="quiz-mode-menu">
+                        <li data-mode="single">单题作答</li>
+                        <li data-mode="set">套题作答</li>
+                    </ul>
+                </div>
+
                 <!-- New Custom Quiz Data Source Dropdown -->
+                <span class="sidebar-control-label">选择题库:</span>
                 <div class="custom-dropdown" id="custom-quiz-source-filter">
                     <div class="dropdown-toggle" id="quiz-source-toggle">
                         <span id="selected-quiz-source">选择题库</span>
                         <i class="fas fa-chevron-down dropdown-arrow"></i>
                     </div>
                     <ul class="dropdown-menu" id="quiz-source-menu">
-                        <!-- Quiz data sources will be populated by JavaScript -->
+                        <!-- Quiz sources will be populated here by JavaScript -->
                     </ul>
                 </div>
+
                 <!-- Custom Type Filter Dropdown -->
+                <span class="sidebar-control-label">选择题型:</span>
                 <div class="custom-dropdown" id="custom-quiz-type-filter">
                     <div class="dropdown-toggle" id="quiz-type-toggle">
                         <span id="selected-quiz-type">全部题型</span>
                         <i class="fas fa-chevron-down dropdown-arrow"></i>
                     </div>
                     <ul class="dropdown-menu" id="quiz-type-menu">
-                        <!-- Options will be populated by JavaScript -->
+                        <!-- Types will be populated here by JavaScript -->
                     </ul>
                 </div>
+
+                <!-- New Set Quiz Time Limit Input -->
+                <span class="sidebar-control-label" id="set-quiz-time-limit-label">套题时间:</span>
+                <div class="set-quiz-time-input-container" id="set-quiz-time-limit-container">
+                    <label for="set-quiz-time-input">分钟:</label>
+                    <input type="number" id="set-quiz-time-input" value="60" min="1" max="300">
+                </div>
+
+                <!-- New Overall Set Quiz Summary Display -->
+                <div class="set-quiz-summary-display" id="set-quiz-summary-display">
+                    <h3>套题总正确率:</h3>
+                    <span class="overall-score-percentage">0% (0/0)</span>
+                </div>
             </div>
+
             <div class="sidebar-content">
                 <ul id="quiz-nav" class="quiz-nav">
-                    <!-- Quiz titles will be inserted here by JavaScript -->
+                    <!-- Quiz navigation items will be inserted here by JavaScript -->
                 </ul>
             </div>
         </div>
@@ -60,7 +90,7 @@
                     <!-- New wrapper for just the scrollable content -->
                     <div id="question-text-scroll-wrapper">
                         <!-- Media container will be inserted here if available -->
-                        <div id="question-media-container"></div> 
+                        <div id="question-media-container"></div>
                         <p id="quiz-content" class="question-content"></p>
                     </div>
                 </div>
@@ -69,8 +99,13 @@
                 <div class="quiz-interaction-panel">
                     <div class="controls">
                         <button id="start-quiz-btn" class="control-button">开始作答</button>
-                        <div id="timer" class="timer-display">时间: 00:00</div>
-                        <div id="score-display" class="score-display">正确率: 0/0 (0%)</div>
+                        <!-- New wrapper for timer and score to keep them on one line -->
+                        <div class="timer-score-wrapper">
+                            <div id="timer" class="timer-display">时间: 00:00</div>
+                            <div id="score-display" class="score-display">正确率: 0/0 (0%)</div>
+                        </div>
+                        <button id="prev-question-btn" class="control-button">上一题</button>
+                        <button id="next-question-btn" class="control-button">下一题</button>
                         <button id="submit-quiz-btn" class="control-button">交卷</button>
                     </div>
 
