@@ -2728,7 +2728,8 @@ class QuizApp {
    * @returns {string} The escaped string.
    */
   escapeRegExp(string) {
-    return String(string).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  //return String(string).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return String(string).replace(/(^|\n)\s*(\d+\.)/g, '$1<span class="highlight">$2</span>');
   }
 
   /**
