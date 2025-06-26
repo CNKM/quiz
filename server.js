@@ -1,4 +1,4 @@
-// 加载 .env 环境变量
+// server.js
 require('dotenv').config();
 // 引入 Express 模块
 const express = require('express');
