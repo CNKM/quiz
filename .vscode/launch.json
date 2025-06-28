@@ -11,7 +11,6 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "preLaunchTask": "npm: NewPort",
             "type": "node"
         },
 
@@ -19,11 +18,12 @@
             "type": "msedge",
             "name": "Launch Microsoft Edge",
             "request": "launch",
-            "runtimeArgs": [
-                "--remote-debugging-port=9222"
-            ],
-            "url": "http://localhost:7000"
+             "url": "http://localhost:8000",
+            "webRoot": "${workspaceFolder}/public",
+            "sourceMaps": true,
+            "trace": true
         }
+      
     ],
     "compounds": [
         {
