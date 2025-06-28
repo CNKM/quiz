@@ -968,6 +968,7 @@ class QuizApp {
         case "single-choice":
         case "multi-choice":
         case "true-false":
+        case "mixed-choice": // Now mixed-choice uses the same renderer for choice-based questions
           this.renderChoiceBasedQuestions(currentQuiz);
           break;
         case "fill-in-blank":
@@ -1028,6 +1029,7 @@ class QuizApp {
 
   /**
    * Renders single-choice, multi-choice, and true-false questions.
+   * Also handles 'mixed-choice' now by treating each 'option' as a sub-question with choices.
    * @param {object} quizData - The current quiz object.
    */
   renderChoiceBasedQuestions(quizData) {
@@ -1036,6 +1038,17 @@ class QuizApp {
       return;
     }
     this.optionsContainer.innerHTML = ""; // Clear previous content
+
+    // For mixed-choice, the main question content might be a long text with sub-questions numbered.
+    // The actual options are in the `options` array, each element representing a sub-question.
+    if (quizData.questionType === "mixed-choice") {
+      const mainContentExplanation = document.createElement("p");
+      mainContentExplanation.classList.add("mixed-choice-instruction");
+      mainContentExplanation.textContent = "请根据上方题目内容，选择以下每个小题的最佳答案：";
+      this.optionsContainer.appendChild(mainContentExplanation);
+    }
+
+
     quizData.options.forEach((option, optionIndex) => {
       const questionBlockDiv = document.createElement("div");
       questionBlockDiv.classList.add("question-block");
@@ -1045,7 +1058,7 @@ class QuizApp {
 
       const questionSubTitle = document.createElement("div");
       questionSubTitle.classList.add("question-sub-title");
-      questionSubTitle.textContent = option.question;
+      questionSubTitle.textContent = option.question; // This will be "1." "2." etc. for mixed-choice
 
       const choicesWrapper = document.createElement("div");
       choicesWrapper.classList.add("choices-wrapper");
@@ -1058,8 +1071,44 @@ class QuizApp {
         choicesWrapper.appendChild(choiceItemDiv);
 
         choiceItemDiv.addEventListener("click", () => {
-          if (!this.quizStarted || this.quizSubmitted) return;
-          this.handleChoiceAnswer(quizData.id, quizData.questionType, optionIndex, choiceKey, questionBlockDiv);
+            if (!this.quizStarted || this.quizSubmitted) return;
+
+          // Determine if it's multi-select based on the *answer* for this specific option
+          const isMultiSelect = Array.isArray(option.answer);
+
+          // Get current user selections for this sub-question, initialize if undefined
+          let currentSelections = this.getCurrentUserAnswer(quizData.id, optionIndex);
+          if (currentSelections === undefined || currentSelections === null) {
+              currentSelections = isMultiSelect ? [] : ""; // Initialize as array for multi-select, string for single
+          }
+          // Ensure currentSelections is an array if it's supposed to be multi-select, convert if needed
+          if (isMultiSelect && !Array.isArray(currentSelections)) {
+              currentSelections = (currentSelections === "" || currentSelections === undefined || currentSelections === null) ? [] : [currentSelections];
+          } else if (!isMultiSelect && Array.isArray(currentSelections)) {
+              currentSelections = currentSelections.length > 0 ? currentSelections[0] : ""; // Convert to single string
+          }
+
+
+          if (isMultiSelect) {
+            // Multi-choice behavior: toggle selection
+            choiceItemDiv.classList.toggle("selected-choice");
+            
+            if (choiceItemDiv.classList.contains("selected-choice")) {
+              if (!currentSelections.includes(choiceKey)) {
+                currentSelections.push(choiceKey);
+              }
+            } else {
+              currentSelections = currentSelections.filter(c => c !== choiceKey);
+            }
+            this.handleChoiceAnswer(quizData.id, optionIndex, currentSelections); // Pass updated array
+          } else {
+            // Single-choice behavior: remove all other selections, then select current
+            questionBlockDiv.querySelectorAll(".choice-item").forEach(item => {
+              item.classList.remove("selected-choice");
+            });
+            choiceItemDiv.classList.add("selected-choice");
+            this.handleChoiceAnswer(quizData.id, optionIndex, choiceKey); // Pass single choice
+          }
         });
       });
 
@@ -1079,62 +1128,58 @@ class QuizApp {
       this.disableOptions(); // Ensure options are disabled if quiz not started or submitted
     }
   }
+  
+
+    /**
+   * Helper function to get the current user answer for a specific question/sub-question.
+   * @param {string|number} quizId - The ID of the current quiz.
+   * @param {number} questionIndex - The index of the sub-question.
+   * @returns {string|string[]|object|undefined} The user's current answer.
+   */
+  getCurrentUserAnswer(quizId, questionIndex) {
+    if (this.quizMode === "single") {
+        return this.userAnswers[questionIndex];
+    } else {
+        return this.setQuizUserAnswers[quizId] ? this.setQuizUserAnswers[quizId][questionIndex] : undefined;
+    }
+  }
 
   /**
-   * Handles user selection for choice-based questions (single, multi, true-false).
+   * Handles user selection for choice-based questions (single, multi, true-false, mixed-choice).
+   * Note: `selectedChoiceOrChoices` can be a string (single choice) or an array of strings (multi-choice).
    * @param {string|number} quizId - The ID of the current quiz.
-   * @param {string} type - The question type ("single-choice", "multi-choice", "true-false").
    * @param {number} questionIndex - The index of the sub-question.
-   * @param {string} selectedChoice - The choice key (e.g., 'A', 'B').
-   * @param {HTMLElement} questionBlockDiv - The DOM element for the current question block.
+   * @param {string|string[]} selectedChoiceOrChoices - The choice key (e.g., 'A', 'B') or array of choices.
    */
-  handleChoiceAnswer(quizId, type, questionIndex, selectedChoice, questionBlockDiv) {
-    if (!this.quizStarted || this.quizSubmitted || !questionBlockDiv) return;
+  handleChoiceAnswer(quizId, questionIndex, selectedChoiceOrChoices) {
+    if (!this.quizStarted || this.quizSubmitted) return;
 
-    let currentAnswers;
+    let targetAnswers;
     if (this.quizMode === "single") {
-      currentAnswers = this.userAnswers;
+        targetAnswers = this.userAnswers;
     } else {
-      // set mode
-      // Ensure the main answer object for this quizId exists
-      this.setQuizUserAnswers[quizId] = this.setQuizUserAnswers[quizId] || {};
-      currentAnswers = this.setQuizUserAnswers[quizId];
+        this.setQuizUserAnswers[quizId] = this.setQuizUserAnswers[quizId] || {};
+        targetAnswers = this.setQuizUserAnswers[quizId];
     }
-
-    if (type === "single-choice" || type === "true-false") {
-      // For single-choice/true-false, only one option can be selected
-      questionBlockDiv.querySelectorAll(".choice-item").forEach((choiceElement) => {
-        choiceElement.classList.remove("selected-choice");
-      });
-      const chosenElement = questionBlockDiv.querySelector(`.choice-item[data-choice="${selectedChoice}"]`);
-      if (chosenElement) {
-        chosenElement.classList.add("selected-choice");
-      }
-      currentAnswers[questionIndex] = selectedChoice; // Store single string
-    } else if (type === "multi-choice") {
-      // For multi-choice, toggle selection
-      const currentSelectionElement = questionBlockDiv.querySelector(`.choice-item[data-choice="${selectedChoice}"]`);
-      if (currentSelectionElement) {
-        currentSelectionElement.classList.toggle("selected-choice");
-      }
-
-      let subQuestionAnswers = currentAnswers[questionIndex] || [];
-      if (currentSelectionElement && currentSelectionElement.classList.contains("selected-choice")) {
-        if (!subQuestionAnswers.includes(selectedChoice)) {
-          subQuestionAnswers.push(selectedChoice);
-        }
-      } else {
-        subQuestionAnswers = subQuestionAnswers.filter((ans) => ans !== selectedChoice);
-      }
-      currentAnswers[questionIndex] = subQuestionAnswers; // Store array of choices
-    }
+    
+     targetAnswers[questionIndex] = Array.isArray(selectedChoiceOrChoices) 
+        ? selectedChoiceOrChoices.sort() 
+        : selectedChoiceOrChoices;
 
     // Mark question as "answered" in sidebar for set mode
     if (this.quizMode === "set" && this.quizNav) {
       const navItem = this.quizNav.querySelector(`li[data-quiz-id="${quizId}"]`);
-      if (navItem && !navItem.classList.contains("answered")) {
-        // Only add if not already marked
-        navItem.classList.add("answered");
+      if (navItem) {
+        // A question is considered answered if it has at least one selection
+        const hasSelection = Array.isArray(selectedChoiceOrChoices)
+            ? selectedChoiceOrChoices.length > 0
+            : selectedChoiceOrChoices !== undefined && selectedChoiceOrChoices !== null && selectedChoiceOrChoices !== "";
+            
+        if (hasSelection && !navItem.classList.contains("answered")) {
+          navItem.classList.add("answered");
+        } else if (!hasSelection && navItem.classList.contains("answered")) {
+          navItem.classList.remove("answered");
+        }
       }
     }
 
@@ -1148,8 +1193,12 @@ class QuizApp {
         }
       });
     }
-    questionBlockDiv.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    const questionBlockDiv = this.optionsContainer.querySelector(`.question-block[data-question-index="${questionIndex}"]`);
+    if (questionBlockDiv) {
+        questionBlockDiv.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
   }
+
 
   /**
    * Renders a fill-in-blank question, supporting multiple blanks.
@@ -1355,73 +1404,64 @@ class QuizApp {
   applySavedUserAnswers(quizData, savedAnswers) {
     if (!savedAnswers || !this.optionsContainer) return;
 
-    switch (quizData.questionType) {
-      case "single-choice":
-      case "true-false":
-        quizData.options.forEach((option, optionIndex) => {
-          const userAnswer = savedAnswers[optionIndex];
-          if (userAnswer !== undefined) {
-            const questionBlockDiv = this.optionsContainer.querySelector(`.question-block[data-question-index="${optionIndex}"]`);
-            if (questionBlockDiv) {
+    // Common logic for choice-based questions (single-choice, multi-choice, true-false, mixed-choice)
+    if (["single-choice", "multi-choice", "true-false", "mixed-choice"].includes(quizData.questionType)) {
+      quizData.options.forEach((optionData, optionIndex) => {
+        const userAnswer = savedAnswers[optionIndex];
+        if (userAnswer !== undefined) {
+          const questionBlockDiv = this.optionsContainer.querySelector(`.question-block[data-question-index="${optionIndex}"]`);
+          if (questionBlockDiv) {
+            if (Array.isArray(userAnswer)) { // Multi-choice or mixed-choice sub-question with multiple answers
+              userAnswer.forEach(choice => {
+                const choiceElement = questionBlockDiv.querySelector(`.choice-item[data-choice="${choice}"]`);
+                if (choiceElement) {
+                  choiceElement.classList.add("selected-choice");
+                }
+              });
+            } else { // Single-choice or mixed-choice sub-question with single answer
               const choiceElement = questionBlockDiv.querySelector(`.choice-item[data-choice="${userAnswer}"]`);
               if (choiceElement) {
                 choiceElement.classList.add("selected-choice");
               }
             }
           }
-        });
-        break;
-      case "multi-choice":
-        quizData.options.forEach((option, optionIndex) => {
-          const userAnswersArr = savedAnswers[optionIndex] || [];
-          const questionBlockDiv = this.optionsContainer.querySelector(`.question-block[data-question-index="${optionIndex}"]`);
-          if (questionBlockDiv) {
-            userAnswersArr.forEach((ans) => {
-              const choiceElement = questionBlockDiv.querySelector(`.choice-item[data-choice="${ans}"]`);
-              if (choiceElement) {
-                choiceElement.classList.add("selected-choice");
-              }
-            });
+        }
+      });
+    } else if (quizData.questionType === "fill-in-blank") {
+      const fillInBlankOptionIndex = 0; // Always 0 for fill-in-blank
+      const userInputs = savedAnswers[fillInBlankOptionIndex] || [];
+      const fillInBlankQuestionBlockDiv = this.optionsContainer.querySelector(`.question-block[data-question-index="${fillInBlankOptionIndex}"]`);
+      if (fillInBlankQuestionBlockDiv) {
+        userInputs.forEach((inputVal, blankIndex) => {
+          const inputElement = fillInBlankQuestionBlockDiv.querySelector(`.fill-in-blank-input[data-blank-index="${blankIndex}"]`);
+          if (inputElement) {
+            inputElement.value = inputVal;
           }
         });
-        break;
-      case "fill-in-blank":
-        const fillInBlankOptionIndex = 0; // Always 0 for fill-in-blank
-        const userInputs = savedAnswers[fillInBlankOptionIndex] || [];
-        const fillInBlankQuestionBlockDiv = this.optionsContainer.querySelector(`.question-block[data-question-index="${fillInBlankOptionIndex}"]`);
-        if (fillInBlankQuestionBlockDiv) {
-          userInputs.forEach((inputVal, blankIndex) => {
-            const inputElement = fillInBlankQuestionBlockDiv.querySelector(`.fill-in-blank-input[data-blank-index="${blankIndex}"]`);
-            if (inputElement) {
-              inputElement.value = inputVal;
-            }
-          });
-        }
-        break;
-      case "matching":
-        const matchingOptionIndex = 0;
-        const userMappings = savedAnswers[matchingOptionIndex] || {};
-        const matchingQuestionBlockDiv = this.optionsContainer.querySelector(`.question-block[data-question-index="${matchingOptionIndex}"]`);
-        if (matchingQuestionBlockDiv) {
-          for (const leftVal in userMappings) {
-            const rightVal = userMappings[leftVal];
-            const leftElem = matchingQuestionBlockDiv.querySelector(`.left-item[data-value="${leftVal}"]`);
-            const rightElem = matchingQuestionBlockDiv.querySelector(`.right-item[data-value="${rightVal}"]`);
+      }
+    } else if (quizData.questionType === "matching") {
+      const matchingOptionIndex = 0;
+      const userMappings = savedAnswers[matchingOptionIndex] || {};
+      const matchingQuestionBlockDiv = this.optionsContainer.querySelector(`.question-block[data-question-index="${matchingOptionIndex}"]`);
+      if (matchingQuestionBlockDiv) {
+        for (const leftVal in userMappings) {
+          const rightVal = userMappings[leftVal];
+          const leftElem = matchingQuestionBlockDiv.querySelector(`.left-item[data-value="${leftVal}"]`);
+          const rightElem = matchingQuestionBlockDiv.querySelector(`.right-item[data-value="${rightVal}"]`);
 
-            if (leftElem) {
-              leftElem.classList.add("matching-connected");
-              leftElem.classList.add("disabled");
-              leftElem.draggable = false;
-            }
-            if (rightElem) {
-              rightElem.classList.add("matching-connected");
-              rightElem.classList.add("disabled");
-              rightElem.style.pointerEvents = "none";
-            }
+          if (leftElem) {
+            leftElem.classList.add("matching-connected");
+            leftElem.classList.add("disabled");
+            leftElem.draggable = false;
           }
-          this.updateMatchingUserPairsDisplay(quizData.id, matchingOptionIndex); // Re-render the user pairs display
+          if (rightElem) {
+            rightElem.classList.add("matching-connected");
+            rightElem.classList.add("disabled");
+            rightElem.style.pointerEvents = "none";
+          }
         }
-        break;
+        this.updateMatchingUserPairsDisplay(quizData.id, matchingOptionIndex); // Re-render the user pairs display
+      }
     }
 
     // After applying saved answers, re-enable options if quiz is started and not submitted
@@ -1442,7 +1482,7 @@ class QuizApp {
 
     if (this.startQuizBtn) this.startQuizBtn.disabled = true; // Start button always disabled after submission
     if (this.submitQuizBtn) {
-      this.submitQuizBtn.disabled = false; // Enable submit button for re-attempt
+      this.submitQuizBtn.disabled = false; // Keep Submit button enabled for re-attempt
       this.submitQuizBtn.textContent = "重新作答"; // Change text to Re-attempt
     }
 
@@ -1496,156 +1536,155 @@ class QuizApp {
       return;
     }
 
-    switch (quizData.questionType) {
-      case "single-choice":
-      case "true-false":
-        quizData.options.forEach((optionData, optionIndex) => {
-          const questionBlockDiv = this.optionsContainer.querySelector(`.question-block[data-question-index="${optionIndex}"]`);
-          if (!questionBlockDiv) return;
-          const correctAnswer = optionData.answer;
-          const userAnswer = answersToUse[optionIndex];
+    // Common logic for choice-based questions (single-choice, multi-choice, true-false, mixed-choice)
+    if (["single-choice", "multi-choice", "true-false", "mixed-choice"].includes(quizData.questionType)) {
+      quizData.options.forEach((optionData, optionIndex) => {
+        const questionBlockDiv = this.optionsContainer.querySelector(`.question-block[data-question-index="${optionIndex}"]`);
+        if (!questionBlockDiv) return;
 
-          let isCorrectSub = userAnswer !== undefined && String(userAnswer) === String(correctAnswer);
+        const correctAnswer = Array.isArray(optionData.answer) ? optionData.answer.sort() : optionData.answer;
+        const userAnswer = answersToUse[optionIndex]; // Can be string or array
 
-          questionBlockDiv.querySelectorAll(".choice-item").forEach((choiceElement) => {
-            const choiceKey = choiceElement.dataset.choice;
-            choiceElement.classList.remove("selected-choice", "correct-choice", "incorrect-choice"); // Clear selected first
+        let isCorrectSub;
+        if (Array.isArray(correctAnswer)) { // Multi-choice or mixed-choice sub-question with multiple answers
+          const userSelectedSorted = Array.isArray(userAnswer) ? userAnswer.sort() : [];
+          isCorrectSub = userSelectedSorted.length === correctAnswer.length && userSelectedSorted.every((val, idx) => val === correctAnswer[idx]);
+        } else { // Single-choice or mixed-choice sub-question with single answer
+          isCorrectSub = userAnswer !== undefined && String(userAnswer) === String(correctAnswer);
+        }
+        
+        questionBlockDiv.querySelectorAll(".choice-item").forEach((choiceElement) => {
+          const choiceKey = choiceElement.dataset.choice;
+          choiceElement.classList.remove("selected-choice", "correct-choice", "incorrect-choice"); // Clear selected first
 
-            if (String(choiceKey) === String(correctAnswer)) {
-              // Highlight correct answer
+          // Highlight correct choices
+          if (Array.isArray(correctAnswer)) {
+            if (correctAnswer.includes(choiceKey)) {
               choiceElement.classList.add("correct-choice");
             }
-            // Highlight incorrect user answer if it's not the correct one
-            if (userAnswer !== undefined && String(userAnswer) === String(choiceKey) && !isCorrectSub) {
-              choiceElement.classList.add("incorrect-choice");
-            }
-          });
-          this.displayExplanation(questionBlockDiv, userAnswer, correctAnswer, optionData.explanation, optionData.choices, isCorrectSub, quizData.questionType);
-        });
-        break;
-      case "multi-choice":
-        quizData.options.forEach((optionData, optionIndex) => {
-          const questionBlockDiv = this.optionsContainer.querySelector(`.question-block[data-question-index="${optionIndex}"]`);
-          if (!questionBlockDiv) return;
-          const correctAnswers = Array.isArray(optionData.answer) ? optionData.answer.sort() : [];
-          const userAnswers = (answersToUse[optionIndex] || []).sort();
-
-          let isCorrectSub = correctAnswers.length === userAnswers.length && correctAnswers.every((val, idx) => val === userAnswers[idx]);
-
-          questionBlockDiv.querySelectorAll(".choice-item").forEach((choiceElement) => {
-            const choiceKey = choiceElement.dataset.choice;
-            choiceElement.classList.remove("selected-choice", "correct-choice", "incorrect-choice"); // Clear selected first
-
-            if (correctAnswers.includes(choiceKey)) {
-              // Highlight all correct answers
-              choiceElement.classList.add("correct-choice");
-            }
-            // Highlight incorrect user selections
-            if (userAnswers.includes(choiceKey) && !correctAnswers.includes(choiceKey)) {
-              choiceItem.classList.add("incorrect-choice");
-            }
-          });
-          this.displayExplanation(questionBlockDiv, userAnswers, correctAnswers, optionData.explanation, optionData.choices, isCorrectSub, quizData.questionType);
-        });
-        break;
-      case "fill-in-blank":
-        const fillInBlankOptionData = quizData.options[0];
-        const fillInBlankQuestionBlockDiv = this.optionsContainer.querySelector(`.question-block[data-question-index="0"]`);
-        if (!fillInBlankQuestionBlockDiv) return;
-        const correctAnswersArray = fillInBlankOptionData.answer;
-        const userInputsArray = answersToUse[0] || new Array(fillInBlankOptionData.blankCount).fill("");
-
-        let fillInBlankExplanationContent = `<div class="explanation-item">`;
-
-        for (let i = 0; i < fillInBlankOptionData.blankCount; i++) {
-          const inputElement = fillInBlankQuestionBlockDiv.querySelector(`.fill-in-blank-input[data-blank-index="${i}"]`);
-          const correctAnswer = (correctAnswersArray[i] || "").toLowerCase().trim();
-          const userInput = (userInputsArray[i] || "").toLowerCase().trim();
-
-          const isBlankCorrect = userInput === correctAnswer;
-
-          if (inputElement) {
-            // Ensure element exists before modifying
-            inputElement.disabled = true; // Disable input field
-            inputElement.classList.add("disabled");
-            if (isBlankCorrect) {
-              inputElement.classList.add("correct");
-            } else {
-              inputElement.classList.add("incorrect");
-            }
-          }
-
-          fillInBlankExplanationContent += `<p>填空 ${i + 1}: `;
-          fillInBlankExplanationContent += `你的答案: <span class="your-answer">${userInputsArray[i] || "未作答"}</span> `;
-          fillInBlankExplanationContent += isBlankCorrect ? `<i class="fas fa-check-circle explanation-icon" style="color: #28a745;"></i> (正确)<br>` : `<i class="fas fa-times-circle explanation-icon" style="color: #dc3545;"></i> (错误)<br>`;
-          if (!isBlankCorrect) {
-            fillInBlankExplanationContent += `正确答案: <span class="correct-answer">${correctAnswersArray[i]}</span><br>`;
-          }
-          fillInBlankExplanationContent += `</p>`;
-        }
-        fillInBlankExplanationContent += `<span class="explanation-text">解析: ${fillInBlankOptionData.explanation}</span></div>`;
-        const explanationEl = fillInBlankQuestionBlockDiv.querySelector(".question-explanation");
-        if (explanationEl) {
-          explanationEl.innerHTML = fillInBlankExplanationContent;
-          explanationEl.style.display = "block";
-        }
-        break;
-      case "matching":
-        const correctMappings = quizData.options[0].answer; // The object of correct pairs
-        const userMappings = answersToUse[0] || {}; // User's matched pairs for the single matching question
-
-        const matchingQuestionBlockDiv = this.optionsContainer.querySelector(`.question-block[data-question-index="0"]`);
-        if (!matchingQuestionBlockDiv) return;
-
-        matchingQuestionBlockDiv.querySelectorAll(".matching-item").forEach((item) => {
-          item.classList.add("disabled");
-          item.style.pointerEvents = "none";
-          item.draggable = false;
-          item.classList.remove("matching-selected-left", "matching-selected-right", "matching-connected", "matching-incorrect", "correct-choice");
-        });
-        const userPairsDisplay = matchingQuestionBlockDiv.querySelector(".matching-user-pairs-display");
-        if (userPairsDisplay) {
-          userPairsDisplay.style.display = "none";
-        }
-
-        let matchingExplanationContent = `<div class="explanation-item"><h4>连线结果：</h4>`;
-        matchingExplanationContent += `<div class="matching-explanation-grid">`;
-        for (const leftKey in correctMappings) {
-          const expectedRight = correctMappings[leftKey];
-          const userRight = userMappings[leftKey];
-
-          const isPairCorrect = userRight !== undefined && userRight === expectedRight;
-
-          const leftElem = matchingQuestionBlockDiv.querySelector(`.left-item[data-value="${leftKey}"]`);
-          const userRightElem = matchingQuestionBlockDiv.querySelector(`.right-item[data-value="${userRight}"]`);
-          const correctRightElem = matchingQuestionBlockDiv.querySelector(`.right-item[data-value="${expectedRight}"]`);
-
-          if (isPairCorrect) {
-            if (leftElem) leftElem.classList.add("matching-connected");
-            if (userRightElem) userRightElem.classList.add("matching-connected");
           } else {
-            if (leftElem) leftElem.classList.add("matching-incorrect");
-            if (userRightElem && userRight) userRightElem.classList.add("matching-incorrect");
-            if (correctRightElem) correctRightElem.classList.add("correct-choice");
+            if (String(choiceKey) === String(correctAnswer)) {
+              choiceElement.classList.add("correct-choice");
+            }
           }
 
-          matchingExplanationContent += `
-                        <div class="matching-explanation-pair-row ${isPairCorrect ? "correct" : "incorrect"}">
-                            <span class="explanation-left-side">${leftKey}</span>
-                            <span class="explanation-user-answer">${userRight || "未作答"}</span>
-                            <span class="explanation-status-icon"><i class="fas ${isPairCorrect ? "fa-check-circle" : "fa-times-circle"}" style="color: ${isPairCorrect ? "#28a745" : "#dc3545"};"></i></span>
-                            <span class="explanation-correct-answer">正确: ${expectedRight}</span>
-                        </div>
-                    `;
+          // Highlight user's selections
+          if (Array.isArray(userAnswer)) {
+            if (userAnswer.includes(choiceKey)) {
+              choiceElement.classList.add("selected-choice");
+              // If user selected an incorrect choice
+              if (!correctAnswer.includes(choiceKey)) {
+                choiceElement.classList.add("incorrect-choice");
+              }
+            }
+          } else {
+            if (String(userAnswer) === String(choiceKey)) {
+              choiceElement.classList.add("selected-choice");
+              // If user selected an incorrect choice
+              if (String(userAnswer) !== String(correctAnswer)) {
+                choiceElement.classList.add("incorrect-choice");
+              }
+            }
+          }
+        });
+        this.displayExplanation(questionBlockDiv, userAnswer, correctAnswer, optionData.explanation, optionData.choices, isCorrectSub, quizData.questionType);
+      });
+    } else if (quizData.questionType === "fill-in-blank") {
+      const fillInBlankOptionData = quizData.options[0];
+      const fillInBlankQuestionBlockDiv = this.optionsContainer.querySelector(`.question-block[data-question-index="0"]`);
+      if (!fillInBlankQuestionBlockDiv) return;
+      const correctAnswersArray = fillInBlankOptionData.answer;
+      const userInputsArray = answersToUse[0] || new Array(fillInBlankOptionData.blankCount).fill("");
+
+      let fillInBlankExplanationContent = `<div class="explanation-item">`;
+
+      for (let i = 0; i < fillInBlankOptionData.blankCount; i++) {
+        const inputElement = fillInBlankQuestionBlockDiv.querySelector(`.fill-in-blank-input[data-blank-index="${i}"]`);
+        const correctAnswer = (correctAnswersArray[i] || "").toLowerCase().trim();
+        const userInput = (userInputsArray[i] || "").toLowerCase().trim();
+
+        const isBlankCorrect = userInput === correctAnswer;
+
+        if (inputElement) {
+          // Ensure element exists before modifying
+          inputElement.disabled = true; // Disable input field
+          inputElement.classList.add("disabled");
+          if (isBlankCorrect) {
+            inputElement.classList.add("correct");
+          } else {
+            inputElement.classList.add("incorrect");
+          }
         }
-        matchingExplanationContent += `</div>`;
-        matchingExplanationContent += `<span class="explanation-text">解析: ${quizData.options[0].explanation}</span></div>`;
-        const matchingExplanationEl = matchingQuestionBlockDiv.querySelector(".question-explanation");
-        if (matchingExplanationEl) {
-          matchingExplanationEl.innerHTML = matchingExplanationContent;
-          matchingExplanationEl.style.display = "block";
+
+        fillInBlankExplanationContent += `<p>填空 ${i + 1}: `;
+        fillInBlankExplanationContent += `你的答案: <span class="your-answer">${userInputsArray[i] || "未作答"}</span> `;
+        fillInBlankExplanationContent += isBlankCorrect ? `<i class="fas fa-check-circle explanation-icon" style="color: #28a745;"></i> (正确)<br>` : `<i class="fas fa-times-circle explanation-icon" style="color: #dc3545;"></i> (错误)<br>`;
+        if (!isBlankCorrect) {
+          fillInBlankExplanationContent += `正确答案: <span class="correct-answer">${correctAnswersArray[i]}</span><br>`;
         }
-        break;
+        fillInBlankExplanationContent += `</p>`;
+      }
+      fillInBlankExplanationContent += `<span class="explanation-text">解析: ${fillInBlankOptionData.explanation}</span></div>`;
+      const explanationEl = fillInBlankQuestionBlockDiv.querySelector(".question-explanation");
+      if (explanationEl) {
+        explanationEl.innerHTML = fillInBlankExplanationContent;
+        explanationEl.style.display = "block";
+      }
+    } else if (quizData.questionType === "matching") {
+      const correctMappings = quizData.options[0].answer; // The object of correct pairs
+      const userMappings = answersToUse[0] || {}; // User's matched pairs for the single matching question
+
+      const matchingQuestionBlockDiv = this.optionsContainer.querySelector(`.question-block[data-question-index="0"]`);
+      if (!matchingQuestionBlockDiv) return;
+
+      matchingQuestionBlockDiv.querySelectorAll(".matching-item").forEach((item) => {
+        item.classList.add("disabled");
+        item.style.pointerEvents = "none";
+        item.draggable = false;
+        item.classList.remove("matching-selected-left", "matching-selected-right", "matching-connected", "matching-incorrect", "correct-choice");
+      });
+      const userPairsDisplay = matchingQuestionBlockDiv.querySelector(".matching-user-pairs-display");
+      if (userPairsDisplay) {
+        userPairsDisplay.style.display = "none";
+      }
+
+      let matchingExplanationContent = `<div class="explanation-item"><h4>连线结果：</h4>`;
+      matchingExplanationContent += `<div class="matching-explanation-grid">`;
+      for (const leftKey in correctMappings) {
+        const expectedRight = correctMappings[leftKey];
+        const userRight = userMappings[leftKey];
+
+        const isPairCorrect = userRight !== undefined && userRight === expectedRight;
+
+        const leftElem = matchingQuestionBlockDiv.querySelector(`.left-item[data-value="${leftKey}"]`);
+        const userRightElem = matchingQuestionBlockDiv.querySelector(`.right-item[data-value="${userRight}"]`);
+        const correctRightElem = matchingQuestionBlockDiv.querySelector(`.right-item[data-value="${expectedRight}"]`);
+
+        if (isPairCorrect) {
+          if (leftElem) leftElem.classList.add("matching-connected");
+          if (userRightElem) userRightElem.classList.add("matching-connected");
+        } else {
+          if (leftElem) leftElem.classList.add("matching-incorrect");
+          if (userRightElem && userRight) userRightElem.classList.add("matching-incorrect");
+          if (correctRightElem) correctRightElem.classList.add("correct-choice");
+        }
+
+        matchingExplanationContent += `
+                      <div class="matching-explanation-pair-row ${isPairCorrect ? "correct" : "incorrect"}">
+                          <span class="explanation-left-side">${leftKey}</span>
+                          <span class="explanation-user-answer">${userRight || "未作答"}</span>
+                          <span class="explanation-status-icon"><i class="fas ${isPairCorrect ? "fa-check-circle" : "fa-times-circle"}" style="color: ${isPairCorrect ? "#28a745" : "#dc3545"};"></i></span>
+                          <span class="explanation-correct-answer">正确: ${expectedRight}</span>
+                      </div>
+                  `;
+      }
+      matchingExplanationContent += `</div>`;
+      matchingExplanationContent += `<span class="explanation-text">解析: ${quizData.options[0].explanation}</span></div>`;
+      const matchingExplanationEl = matchingQuestionBlockDiv.querySelector(".question-explanation");
+      if (matchingExplanationEl) {
+        matchingExplanationEl.innerHTML = matchingExplanationContent;
+        matchingExplanationEl.style.display = "block";
+      }
     }
 
     // After submission, ensure nav buttons are enabled for review
@@ -2053,7 +2092,7 @@ class QuizApp {
         }
       }
     } else {
-      // single-choice, multi-choice, true-false
+      // single-choice, multi-choice, true-false, mixed-choice
       this.optionsContainer.querySelectorAll(".choice-item").forEach((choiceItem) => {
         choiceItem.classList.remove("disabled", "correct-choice", "incorrect-choice");
       });
@@ -2100,7 +2139,7 @@ class QuizApp {
         }
       }
     } else {
-      // single-choice, multi-choice, true-false
+      // single-choice, multi-choice, true-false, mixed-choice
       this.optionsContainer.querySelectorAll(".choice-item").forEach((choiceItem) => {
         choiceItem.classList.add("disabled");
         if (clearVisualFeedback) {
@@ -2236,169 +2275,165 @@ class QuizApp {
       return;
     }
 
-    switch (quizData.questionType) {
-      case "single-choice":
-      case "true-false":
-        totalQuestions = quizData.options.length;
-        quizData.options.forEach((optionData, optionIndex) => {
-          const questionBlockDiv = this.optionsContainer.querySelector(`.question-block[data-question-index="${optionIndex}"]`);
-          if (!questionBlockDiv) return;
-          const correctAnswer = optionData.answer;
-          const userAnswer = this.userAnswers[optionIndex];
+    // Common logic for choice-based questions (single-choice, multi-choice, true-false, mixed-choice)
+    if (["single-choice", "multi-choice", "true-false", "mixed-choice"].includes(quizData.questionType)) {
+      totalQuestions = quizData.options.length;
+      quizData.options.forEach((optionData, optionIndex) => {
+        const questionBlockDiv = this.optionsContainer.querySelector(`.question-block[data-question-index="${optionIndex}"]`);
+        if (!questionBlockDiv) return;
 
-          let isCorrect = userAnswer !== undefined && String(userAnswer) === String(correctAnswer);
+        const correctAnswer = Array.isArray(optionData.answer) ? optionData.answer.sort() : optionData.answer;
+        const userAnswer = this.userAnswers[optionIndex]; // Can be string or array
 
-          questionBlockDiv.querySelectorAll(".choice-item").forEach((choiceElement) => {
-            const choiceKey = choiceElement.dataset.choice;
-            choiceElement.classList.remove("selected-choice", "correct-choice", "incorrect-choice");
+        let isCorrectSub;
+        if (Array.isArray(correctAnswer)) { // Multi-choice or mixed-choice sub-question with multiple answers
+          const userSelectedSorted = Array.isArray(userAnswer) ? userAnswer.sort() : [];
+          // 检查数组长度是否一致且所有元素都匹配
+          isCorrectSub = userSelectedSorted.length === correctAnswer.length && 
+                         userSelectedSorted.every((val, idx) => val === correctAnswer[idx]);
+        } else { // Single-choice or mixed-choice sub-question with single answer
+          isCorrectSub = userAnswer !== undefined && String(userAnswer) === String(correctAnswer);
+        }
+        
+        questionBlockDiv.querySelectorAll(".choice-item").forEach((choiceElement) => {
+          const choiceKey = choiceElement.dataset.choice;
+          choiceElement.classList.remove("selected-choice", "correct-choice", "incorrect-choice"); // Clear selected first
 
+          // Highlight correct choices
+          if (Array.isArray(correctAnswer)) {
+            if (correctAnswer.includes(choiceKey)) {
+              choiceElement.classList.add("correct-choice");
+            }
+          } else {
             if (String(choiceKey) === String(correctAnswer)) {
               choiceElement.classList.add("correct-choice");
             }
-            if (userAnswer !== undefined && String(userAnswer) === String(choiceKey) && !isCorrect) {
-              choiceElement.classList.add("incorrect-choice");
-            }
-          });
-
-          if (isCorrect) {
-            correctCount++;
-          }
-          this.displayExplanation(questionBlockDiv, userAnswer, correctAnswer, optionData.explanation, optionData.choices, isCorrect, quizData.questionType);
-        });
-        break;
-
-      case "multi-choice":
-        totalQuestions = quizData.options.length;
-        quizData.options.forEach((optionData, optionIndex) => {
-          const questionBlockDiv = this.optionsContainer.querySelector(`.question-block[data-question-index="${optionIndex}"]`);
-          if (!questionBlockDiv) return;
-          const correctAnswers = Array.isArray(optionData.answer) ? optionData.answer.sort() : [];
-          const userAnswers = (this.userAnswers[optionIndex] || []).sort();
-
-          let isCorrect = correctAnswers.length === userAnswers.length && correctAnswers.every((val, idx) => val === userAnswers[idx]);
-
-          questionBlockDiv.querySelectorAll(".choice-item").forEach((choiceElement) => {
-            const choiceKey = choiceElement.dataset.choice;
-            choiceElement.classList.remove("selected-choice", "correct-choice", "incorrect-choice");
-
-            if (correctAnswers.includes(choiceKey)) {
-              choiceElement.classList.add("correct-choice");
-            }
-            if (userAnswers.includes(choiceKey) && !correctAnswers.includes(choiceKey)) {
-              choiceItem.classList.add("incorrect-choice");
-            }
-          });
-
-          if (isCorrect) {
-            correctCount++;
-          }
-          this.displayExplanation(questionBlockDiv, userAnswers, correctAnswers, optionData.explanation, optionData.choices, isCorrect, quizData.questionType);
-        });
-        break;
-
-      case "fill-in-blank":
-        totalQuestions = quizData.options[0].blankCount;
-        const fillInBlankOptionData = quizData.options[0];
-        const fillInBlankQuestionBlockDiv = this.optionsContainer.querySelector(`.question-block[data-question-index="0"]`);
-        if (!fillInBlankQuestionBlockDiv) return;
-        const correctAnswersArray = fillInBlankOptionData.answer;
-        const userInputsArray = this.userAnswers[0] || new Array(totalQuestions).fill("");
-
-        let fillInBlankExplanationContent = `<div class="explanation-item">`;
-
-        for (let i = 0; i < totalQuestions; i++) {
-          const inputElement = fillInBlankQuestionBlockDiv.querySelector(`.fill-in-blank-input[data-blank-index="${i}"]`);
-          const correctAnswer = (correctAnswersArray[i] || "").toLowerCase().trim();
-          const userInput = (userInputsArray[i] || "").toLowerCase().trim();
-
-          const isBlankCorrect = userInput === correctAnswer;
-
-          if (inputElement) {
-            inputElement.disabled = true;
-            inputElement.classList.add("disabled");
-
-            if (isBlankCorrect) {
-              inputElement.classList.add("correct");
-              correctCount++;
-            } else {
-              inputElement.classList.add("incorrect");
-            }
           }
 
-          fillInBlankExplanationContent += `<p>填空 ${i + 1}: `;
-          fillInBlankExplanationContent += `你的答案: <span class="your-answer">${userInputsArray[i] || "未作答"}</span> `;
-          fillInBlankExplanationContent += isBlankCorrect ? `<i class="fas fa-check-circle explanation-icon" style="color: #28a745;"></i> (正确)<br>` : `<i class="fas fa-times-circle explanation-icon" style="color: #dc3545;"></i> (错误)<br>`;
-          if (!isBlankCorrect) {
-            fillInBlankExplanationContent += `正确答案: <span class="correct-answer">${correctAnswersArray[i]}</span><br>`;
-          }
-          fillInBlankExplanationContent += `</p>`;
-        }
-        fillInBlankExplanationContent += `<span class="explanation-text">解析: ${fillInBlankOptionData.explanation}</span></div>`;
-        const explanationEl = fillInBlankQuestionBlockDiv.querySelector(".question-explanation");
-        if (explanationEl) {
-          explanationEl.innerHTML = fillInBlankExplanationContent;
-          explanationEl.style.display = "block";
-        }
-        break;
-
-      case "matching":
-        totalQuestions = quizData.options[0].pairs.length;
-        const correctMappings = quizData.options[0].answer;
-        const userMappings = this.userAnswers[0] || {};
-
-        const matchingQuestionBlockDiv = this.optionsContainer.querySelector(`.question-block[data-question-index="0"]`);
-        if (!matchingQuestionBlockDiv) return;
-
-        matchingQuestionBlockDiv.querySelectorAll(".matching-item").forEach((item) => {
-          item.classList.add("disabled");
-          item.style.pointerEvents = "none";
-          item.draggable = false;
-          item.classList.remove("matching-selected-left", "matching-selected-right", "matching-connected", "matching-incorrect", "correct-choice");
-        });
-        const userPairsDisplay = matchingQuestionBlockDiv.querySelector(".matching-user-pairs-display");
-        if (userPairsDisplay) {
-          userPairsDisplay.style.display = "none";
-        }
-
-        let matchingExplanationContent = `<div class="explanation-item"><h4>连线结果：</h4>`;
-        matchingExplanationContent += `<div class="matching-explanation-grid">`;
-        for (const leftKey in correctMappings) {
-          const expectedRight = correctMappings[leftKey];
-          const userRight = userMappings[leftKey];
-
-          const isPairCorrect = userRight !== undefined && userRight === expectedRight;
-
-          const leftElem = matchingQuestionBlockDiv.querySelector(`.left-item[data-value="${leftKey}"]`);
-          const userRightElem = matchingQuestionBlockDiv.querySelector(`.right-item[data-value="${userRight}"]`);
-          const correctRightElem = matchingQuestionBlockDiv.querySelector(`.right-item[data-value="${expectedRight}"]`);
-
-          if (isPairCorrect) {
-            correctCount++;
-            if (leftElem) leftElem.classList.add("matching-connected");
-            if (userRightElem) userRightElem.classList.add("matching-connected");
+          // Highlight user's selections
+          if (Array.isArray(userAnswer)) {
+            if (userAnswer.includes(choiceKey)) {
+              choiceElement.classList.add("selected-choice");
+              // If user selected an incorrect choice
+              if (!correctAnswer.includes(choiceKey)) {
+                choiceElement.classList.add("incorrect-choice");
+              }
+            }
           } else {
-            if (leftElem) leftElem.classList.add("matching-incorrect");
-            if (userRightElem && userRight) userRightElem.classList.add("matching-incorrect");
-            if (correctRightElem) correctRightElem.classList.add("correct-choice");
+            if (String(userAnswer) === String(choiceKey)) {
+              choiceElement.classList.add("selected-choice");
+              // If user selected an incorrect choice
+              if (String(userAnswer) !== String(correctAnswer)) {
+                choiceElement.classList.add("incorrect-choice");
+              }
+            }
           }
+        });
+        if (isCorrectSub) {
+          correctCount++;
+        }
+        this.displayExplanation(questionBlockDiv, userAnswer, correctAnswer, optionData.explanation, optionData.choices, isCorrectSub, quizData.questionType);
+      });
+    } else if (quizData.questionType === "fill-in-blank") {
+      totalQuestions = quizData.options[0].blankCount;
+      const fillInBlankOptionData = quizData.options[0];
+      const fillInBlankQuestionBlockDiv = this.optionsContainer.querySelector(`.question-block[data-question-index="0"]`);
+      if (!fillInBlankQuestionBlockDiv) return;
+      const correctAnswersArray = fillInBlankOptionData.answer;
+      const userInputsArray = this.userAnswers[0] || new Array(totalQuestions).fill("");
 
-          matchingExplanationContent += `
-                        <div class="matching-explanation-pair-row ${isPairCorrect ? "correct" : "incorrect"}">
-                            <span class="explanation-left-side">${leftKey}</span>
-                            <span class="explanation-user-answer">${userRight || "未作答"}</span>
-                            <span class="explanation-status-icon"><i class="fas ${isPairCorrect ? "fa-check-circle" : "fa-times-circle"}" style="color: ${isPairCorrect ? "#28a745" : "#dc3545"};"></i></span>
-                            <span class="explanation-correct-answer">正确: ${expectedRight}</span>
-                        </div>
-                    `;
+      let fillInBlankExplanationContent = `<div class="explanation-item">`;
+
+      for (let i = 0; i < totalQuestions; i++) {
+        const inputElement = fillInBlankQuestionBlockDiv.querySelector(`.fill-in-blank-input[data-blank-index="${i}"]`);
+        const correctAnswer = (correctAnswersArray[i] || "").toLowerCase().trim();
+        const userInput = (userInputsArray[i] || "").toLowerCase().trim();
+
+        const isBlankCorrect = userInput === correctAnswer;
+
+        if (inputElement) {
+          inputElement.disabled = true;
+          inputElement.classList.add("disabled");
+
+          if (isBlankCorrect) {
+            inputElement.classList.add("correct");
+            correctCount++;
+          } else {
+            inputElement.classList.add("incorrect");
+          }
         }
-        matchingExplanationContent += `</div>`;
-        matchingExplanationContent += `<span class="explanation-text">解析: ${quizData.options[0].explanation}</span></div>`;
-        const matchingExplanationEl = matchingQuestionBlockDiv.querySelector(".question-explanation");
-        if (matchingExplanationEl) {
-          matchingExplanationEl.innerHTML = matchingExplanationContent;
-          matchingExplanationEl.style.display = "block";
+
+        fillInBlankExplanationContent += `<p>填空 ${i + 1}: `;
+        fillInBlankExplanationContent += `你的答案: <span class="your-answer">${userInputsArray[i] || "未作答"}</span> `;
+        fillInBlankExplanationContent += isBlankCorrect ? `<i class="fas fa-check-circle explanation-icon" style="color: #28a745;"></i> (正确)<br>` : `<i class="fas fa-times-circle explanation-icon" style="color: #dc3545;"></i> (错误)<br>`;
+        if (!isBlankCorrect) {
+          fillInBlankExplanationContent += `正确答案: <span class="correct-answer">${correctAnswersArray[i]}</span><br>`;
         }
-        break;
+        fillInBlankExplanationContent += `</p>`;
+      }
+      fillInBlankExplanationContent += `<span class="explanation-text">解析: ${fillInBlankOptionData.explanation}</span></div>`;
+      const explanationEl = fillInBlankQuestionBlockDiv.querySelector(".question-explanation");
+      if (explanationEl) {
+        explanationEl.innerHTML = fillInBlankExplanationContent;
+        explanationEl.style.display = "block";
+      }
+    } else if (quizData.questionType === "matching") {
+      totalQuestions = quizData.options[0].pairs.length;
+      const correctMappings = quizData.options[0].answer;
+      const userMappings = this.userAnswers[0] || {};
+
+      const matchingQuestionBlockDiv = this.optionsContainer.querySelector(`.question-block[data-question-index="0"]`);
+      if (!matchingQuestionBlockDiv) return;
+
+      matchingQuestionBlockDiv.querySelectorAll(".matching-item").forEach((item) => {
+        item.classList.add("disabled");
+        item.style.pointerEvents = "none";
+        item.draggable = false;
+        item.classList.remove("matching-selected-left", "matching-selected-right", "matching-connected", "matching-incorrect", "correct-choice");
+      });
+      const userPairsDisplay = matchingQuestionBlockDiv.querySelector(".matching-user-pairs-display");
+      if (userPairsDisplay) {
+        userPairsDisplay.style.display = "none";
+      }
+
+      let matchingExplanationContent = `<div class="explanation-item"><h4>连线结果：</h4>`;
+      matchingExplanationContent += `<div class="matching-explanation-grid">`;
+      for (const leftKey in correctMappings) {
+        const expectedRight = correctMappings[leftKey];
+        const userRight = userMappings[leftKey];
+
+        const isPairCorrect = userRight !== undefined && userRight === expectedRight;
+
+        const leftElem = matchingQuestionBlockDiv.querySelector(`.left-item[data-value="${leftKey}"]`);
+        const userRightElem = matchingQuestionBlockDiv.querySelector(`.right-item[data-value="${userRight}"]`);
+        const correctRightElem = matchingQuestionBlockDiv.querySelector(`.right-item[data-value="${expectedRight}"]`);
+
+        if (isPairCorrect) {
+          correctCount++;
+          if (leftElem) leftElem.classList.add("matching-connected");
+          if (userRightElem) userRightElem.classList.add("matching-connected");
+        } else {
+          if (leftElem) leftElem.classList.add("matching-incorrect");
+          if (userRightElem && userRight) userRightElem.classList.add("matching-incorrect");
+          if (correctRightElem) correctRightElem.classList.add("correct-choice");
+        }
+
+        matchingExplanationContent += `
+                      <div class="matching-explanation-pair-row ${isPairCorrect ? "correct" : "incorrect"}">
+                          <span class="explanation-left-side">${leftKey}</span>
+                          <span class="explanation-user-answer">${userRight || "未作答"}</span>
+                          <span class="explanation-status-icon"><i class="fas ${isPairCorrect ? "fa-check-circle" : "fa-times-circle"}" style="color: ${isPairCorrect ? "#28a745" : "#dc3545"};"></i></span>
+                          <span class="explanation-correct-answer">正确: ${expectedRight}</span>
+                      </div>
+                  `;
+      }
+      matchingExplanationContent += `</div>`;
+      matchingExplanationContent += `<span class="explanation-text">解析: ${quizData.options[0].explanation}</span></div>`;
+      const matchingExplanationEl = matchingQuestionBlockDiv.querySelector(".question-explanation");
+      if (matchingExplanationEl) {
+        matchingExplanationEl.innerHTML = matchingExplanationContent;
+        matchingExplanationEl.style.display = "block";
+      }
     }
 
     // Calculate and display overall score
@@ -2421,7 +2456,7 @@ class QuizApp {
       displayText = "还不错！再多思考一下下！";
       displayClass = "score-mid";
     } else if (accuracyPercentage >= 60) {
-      displayEmoji = "😬😅";
+      displayEmoji = "😬�";
       displayText = "勉强及格！下次要更稳哦！";
       displayClass = "score-mid";
     } else if (accuracyPercentage >= 40) {
@@ -2479,70 +2514,62 @@ class QuizApp {
       let isQuizFullyCorrect = true; // For single-choice, multi-choice sub-parts
       let quizStatus = ""; // 'correct', 'incorrect', 'unanswered'
 
-      switch (quiz.questionType) {
-        case "single-choice":
-        case "true-false":
-          totalSubQuestionsForQuiz = quiz.options.length;
-          quiz.options.forEach((optionData, optionIndex) => {
-            const correctAnswer = optionData.answer;
-            const userAnswer = userAnswersForThisQuiz ? userAnswersForThisQuiz[optionIndex] : undefined;
-            const isCorrectSub = userAnswer !== undefined && String(userAnswer) === String(correctAnswer);
-            if (isCorrectSub) {
-              correctCountForQuiz++;
-            } else {
-              isQuizFullyCorrect = false;
-            }
-          });
-          break;
-        case "multi-choice":
-          totalSubQuestionsForQuiz = quiz.options.length;
-          quiz.options.forEach((optionData, optionIndex) => {
-            const correctAnswers = Array.isArray(optionData.answer) ? optionData.answer.sort() : [];
-            const userAnswers = userAnswersForThisQuiz ? (userAnswersForThisQuiz[optionIndex] || []).sort() : [];
-            const isCorrectSub = correctAnswers.length === userAnswers.length && correctAnswers.every((val, idx) => val === userAnswers[idx]);
-            if (isCorrectSub) {
-              correctCountForQuiz++;
-            } else {
-              isQuizFullyCorrect = false;
-            }
-          });
-          break;
-        case "fill-in-blank":
-          totalSubQuestionsForQuiz = quiz.options[0].blankCount;
-          const correctBlanks = quiz.options[0].answer;
-          const userBlanks = userAnswersForThisQuiz ? userAnswersForThisQuiz[0] || [] : new Array(totalSubQuestionsForQuiz).fill("");
+      // Common logic for choice-based questions (single-choice, multi-choice, true-false, mixed-choice)
+      if (["single-choice", "multi-choice", "true-false", "mixed-choice"].includes(quiz.questionType)) {
+        totalSubQuestionsForQuiz = quiz.options.length;
+        quiz.options.forEach((optionData, optionIndex) => {
+          const correctAnswer = Array.isArray(optionData.answer) ? optionData.answer.sort() : optionData.answer;
+          const userAnswer = userAnswersForThisQuiz ? userAnswersForThisQuiz[optionIndex] : undefined; // Can be string or array
 
-          for (let i = 0; i < totalSubQuestionsForQuiz; i++) {
-            const correctAnswer = (correctBlanks[i] || "").toLowerCase().trim();
-            const userInput = (userBlanks[i] || "").toLowerCase().trim();
-            const isBlankCorrect = userInput === correctAnswer;
-            if (isBlankCorrect) {
-              correctCountForQuiz++;
-            } else {
-              isQuizFullyCorrect = false;
-            }
+          let isCorrectSub;
+          if (Array.isArray(correctAnswer)) {
+            const userSelectedSorted = Array.isArray(userAnswer) ? userAnswer.sort() : [];
+            // 检查数组长度是否一致且所有元素都匹配
+            isCorrectSub = userSelectedSorted.length === correctAnswer.length && 
+                           userSelectedSorted.every((val, idx) => val === correctAnswer[idx]);
+          } else {
+            isCorrectSub = userAnswer !== undefined && String(userAnswer) === String(correctAnswer);
           }
-          break;
-        case "matching":
-          totalSubQuestionsForQuiz = quiz.options[0].pairs.length;
-          const correctMappings = quiz.options[0].answer;
-          const userMappings = userAnswersForThisQuiz ? userAnswersForThisQuiz[0] || {} : {};
 
-          for (const leftKey in correctMappings) {
-            const expectedRight = correctMappings[leftKey];
-            const userRight = userMappings[leftKey];
-            const isPairCorrect = userRight !== undefined && userRight === expectedRight;
-            if (isPairCorrect) {
-              correctCountForQuiz++;
-            } else {
-              isQuizFullyCorrect = false;
-            }
+          if (isCorrectSub) {
+            correctCountForQuiz++;
+          } else {
+            isQuizFullyCorrect = false;
           }
-          break;
-        default:
-          totalSubQuestionsForQuiz = 0; // Unsupported type
-          isQuizFullyCorrect = false;
-          break;
+        });
+      } else if (quiz.questionType === "fill-in-blank") {
+        totalSubQuestionsForQuiz = quiz.options[0].blankCount;
+        const correctBlanks = quiz.options[0].answer;
+        const userBlanks = userAnswersForThisQuiz ? userAnswersForThisQuiz[0] || [] : new Array(totalSubQuestionsForQuiz).fill("");
+
+        for (let i = 0; i < totalSubQuestionsForQuiz; i++) {
+          const correctAnswer = (correctBlanks[i] || "").toLowerCase().trim();
+          const userInput = (userBlanks[i] || "").toLowerCase().trim();
+          const isBlankCorrect = userInput === correctAnswer;
+          if (isBlankCorrect) {
+            correctCountForQuiz++;
+          } else {
+            isQuizFullyCorrect = false;
+          }
+        }
+      } else if (quiz.questionType === "matching") {
+        totalSubQuestionsForQuiz = quiz.options[0].pairs.length;
+        const correctMappings = quiz.options[0].answer;
+        const userMappings = userAnswersForThisQuiz ? userAnswersForThisQuiz[0] || {} : {};
+
+        for (const leftKey in correctMappings) {
+          const expectedRight = correctMappings[leftKey];
+          const userRight = userMappings[leftKey];
+          const isPairCorrect = userRight !== undefined && userRight === expectedRight;
+          if (isPairCorrect) {
+            correctCountForQuiz++;
+          } else {
+            isQuizFullyCorrect = false;
+          }
+        }
+      } else {
+        totalSubQuestionsForQuiz = 0; // Unsupported type
+        isQuizFullyCorrect = false;
       }
 
       const accuracyPercentageForQuiz = totalSubQuestionsForQuiz === 0 ? 0 : ((correctCountForQuiz / totalSubQuestionsForQuiz) * 100).toFixed(2);
@@ -2658,7 +2685,7 @@ class QuizApp {
   }
 
   /**
-   * Display the explanation content for a question (for single, multi, true-false, fill-in-blank).
+   * Display the explanation content for a question (for single, multi, true-false, fill-in-blank, mixed-choice).
    * @param {HTMLElement} questionBlockDiv - The DOM block for the current question.
    * @param {string|array} userAnswer - User's answer(s).
    * @param {string|array} correctAnswer - Correct answer(s).
@@ -2672,19 +2699,24 @@ class QuizApp {
     if (!explanationDiv) return;
     let html = '<div class="explanation-item">';
     // User's Answer
-    if (questionType === "multi-choice") {
-      const userAnsArr = Array.isArray(userAnswer) ? userAnswer : [];
-      html += `<p>你的答案: <span class="your-answer">${userAnsArr.length ? userAnsArr.join(", ") : "未作答"}</span> `;
+    if (Array.isArray(userAnswer)) {
+      html += `<p>你的答案: <span class="your-answer">${userAnswer.length ? userAnswer.join(", ") : "未作答"}</span> `;
       html += isCorrect ? '<i class="fas fa-check-circle explanation-icon" style="color: #28a745;"></i> (全对)<br>' : '<i class="fas fa-times-circle explanation-icon" style="color: #dc3545;"></i> (有误)<br>';
       html += `<p>正确答案: <span class="correct-answer">${Array.isArray(correctAnswer) ? correctAnswer.join(", ") : ""}</span></p>`;
-    } else if (questionType !== "fill-in-blank" && questionType !== "matching") {
-      // Fill-in and Matching handled separately for explanation details
+    } else if (questionType === "fill-in-blank" || questionType === "matching") {
+      // These types are handled with custom explanation formatting in evaluateSingleQuizSubmission and evaluateSetQuizSubmission.
+      // This part might not be reached for these types, but kept for general safety.
+      html += `<p>你的答案: <span class="your-answer">${userAnswer !== undefined && userAnswer !== null && userAnswer !== "" ? userAnswer : "未作答"}</span> `;
+      html += isCorrect ? '<i class="fas fa-check-circle explanation-icon" style="color: #28a745;"></i> (正确)<br>' : '<i class="fas fa-times-circle explanation-icon" style="color: #dc3545;"></i> (错误)<br>';
+      html += `<p>正确答案: <span class="correct-answer">${correctAnswer !== undefined && correctAnswer !== null ? correctAnswer : ""}</span></p>`;
+    } else { // Single-choice, true-false, or mixed-choice sub-question with single answer
       html += `<p>你的答案: <span class="your-answer">${userAnswer !== undefined && userAnswer !== null && userAnswer !== "" ? userAnswer : "未作答"}</span> `;
       html += isCorrect ? '<i class="fas fa-check-circle explanation-icon" style="color: #28a745;"></i> (正确)<br>' : '<i class="fas fa-times-circle explanation-icon" style="color: #dc3545;"></i> (错误)<br>';
       html += `<p>正确答案: <span class="correct-answer">${correctAnswer !== undefined && correctAnswer !== null ? correctAnswer : ""}</span></p>`;
     }
+    
     // Options content (optional)
-    if (choices && typeof choices === "object" && (questionType === "single-choice" || questionType === "multi-choice" || questionType === "true-false")) {
+    if (choices && typeof choices === "object" && (questionType === "single-choice" || questionType === "multi-choice" || questionType === "true-false" || questionType === "mixed-choice")) {
       html += '<div class="explanation-choices"><b>选项：</b> ';
       html += Object.entries(choices)
         .map(([k, v]) => `${k}. ${v}`)
@@ -2717,6 +2749,8 @@ class QuizApp {
         return "连线题";
       case "true-false":
         return "判断题";
+      case "mixed-choice":
+        return "综合题";
       default:
         return "未知题型";
     }
@@ -2745,79 +2779,69 @@ class QuizApp {
     const quizId = currentQuiz.id;
     this.setQuizUserAnswers[quizId] = this.setQuizUserAnswers[quizId] || {};
 
-    switch (currentQuiz.questionType) {
-      case "single-choice":
-      case "true-false":
-        currentQuiz.options.forEach((option, optionIndex) => {
-          const questionBlockDiv = this.optionsContainer.querySelector(`.question-block[data-question-index="${optionIndex}"]`);
-          if (questionBlockDiv) {
-            const selectedChoice = questionBlockDiv.querySelector(".choice-item.selected-choice");
-            if (selectedChoice) {
-              this.setQuizUserAnswers[quizId][optionIndex] = selectedChoice.dataset.choice;
-            } else {
-              // If no selection, ensure it's removed from answers for this sub-question index
-              if (this.setQuizUserAnswers[quizId][optionIndex] !== undefined) {
-                delete this.setQuizUserAnswers[quizId][optionIndex];
-              }
-            }
-          }
-        });
-        break;
-      case "multi-choice":
-        currentQuiz.options.forEach((option, optionIndex) => {
-          const questionBlockDiv = this.optionsContainer.querySelector(`.question-block[data-question-index="${optionIndex}"]`);
-          if (questionBlockDiv) {
-            const selectedChoices = Array.from(questionBlockDiv.querySelectorAll(".choice-item.selected-choice")).map((item) => item.dataset.choice);
+    // Common logic for choice-based questions (single-choice, multi-choice, true-false, mixed-choice)
+    if (["single-choice", "multi-choice", "true-false", "mixed-choice"].includes(currentQuiz.questionType)) {
+      currentQuiz.options.forEach((option, optionIndex) => {
+        const questionBlockDiv = this.optionsContainer.querySelector(`.question-block[data-question-index="${optionIndex}"]`);
+        if (questionBlockDiv) {
+          const selectedChoices = Array.from(questionBlockDiv.querySelectorAll(".choice-item.selected-choice")).map((item) => item.dataset.choice);
+          
+          // Determine if it's multi-select based on the *answer* for this specific option
+          const isMultiSelect = Array.isArray(option.answer);
+
+          if (isMultiSelect) {
             if (selectedChoices.length > 0) {
               this.setQuizUserAnswers[quizId][optionIndex] = selectedChoices;
             } else {
-              // If no selection, ensure it's removed from answers for this sub-question index
-              if (this.setQuizUserAnswers[quizId][optionIndex] !== undefined) {
-                delete this.setQuizUserAnswers[quizId][optionIndex];
-              }
+              delete this.setQuizUserAnswers[quizId][optionIndex];
             }
+          } else { // Single-choice
+            if (selectedChoices.length > 0) {
+              this.setQuizUserAnswers[quizId][optionIndex] = selectedChoices[0]; // Only store the first selected for single choice
+            } else {
+              delete this.setQuizUserAnswers[quizId][optionIndex];
+            }
+          }
+        }
+      });
+    } else if (currentQuiz.questionType === "fill-in-blank") {
+      const fillInBlankOptionIndex = 0;
+      const fillInBlankInputs = Array.from(this.optionsContainer.querySelectorAll(".fill-in-blank-input"));
+      const userBlanks = fillInBlankInputs.map((input) => input.value);
+      // Only save if at least one blank has content
+      if (userBlanks.some((val) => val.trim() !== "")) {
+        this.setQuizUserAnswers[quizId][fillInBlankOptionIndex] = userBlanks;
+      } else {
+        // If all blanks are empty, remove entry for this sub-question
+        if (this.setQuizUserAnswers[quizId][fillInBlankOptionIndex] !== undefined) {
+          delete this.setQuizUserAnswers[quizId][fillInBlankOptionIndex];
+        }
+      }
+    } else if (currentQuiz.questionType === "matching") {
+      const matchingOptionIndex = 0;
+      const matchingQuestionBlockDiv = this.optionsContainer.querySelector(`.question-block[data-question-index="${matchingOptionIndex}"]`);
+      if (matchingQuestionBlockDiv) {
+        const leftItems = matchingQuestionBlockDiv.querySelectorAll(".left-item.matching-connected");
+        const currentPairs = {};
+        leftItems.forEach((leftItem) => {
+          // When retrieving from DOM, we rely on the `handleDrop` already correctly setting the answer.
+          // Here, we re-collect it for robustness.
+          // A safer way is to directly access the state.
+          const currentQuizAnswers = this.quizMode === "single" ? this.userAnswers : this.setQuizUserAnswers[quizId];
+          if (currentQuizAnswers && currentQuizAnswers[matchingOptionIndex] && currentQuizAnswers[matchingOptionIndex][leftItem.dataset.value]) {
+              currentPairs[leftItem.dataset.value] = currentQuizAnswers[matchingOptionIndex][leftItem.dataset.value];
           }
         });
-        break;
-      case "fill-in-blank":
-        const fillInBlankOptionIndex = 0;
-        const fillInBlankInputs = Array.from(this.optionsContainer.querySelectorAll(".fill-in-blank-input"));
-        const userBlanks = fillInBlankInputs.map((input) => input.value);
-        // Only save if at least one blank has content
-        if (userBlanks.some((val) => val.trim() !== "")) {
-          this.setQuizUserAnswers[quizId][fillInBlankOptionIndex] = userBlanks;
-        } else {
-          // If all blanks are empty, remove entry for this sub-question
-          if (this.setQuizUserAnswers[quizId][fillInBlankOptionIndex] !== undefined) {
-            delete this.setQuizUserAnswers[quizId][fillInBlankOptionIndex];
-          }
-        }
-        break;
-      case "matching":
-        const matchingOptionIndex = 0;
-        const matchingQuestionBlockDiv = this.optionsContainer.querySelector(`.question-block[data-question-index="${matchingOptionIndex}"]`);
-        if (matchingQuestionBlockDiv) {
-          const leftItems = matchingQuestionBlockDiv.querySelectorAll(".left-item.matching-connected");
-          const currentPairs = {};
-          leftItems.forEach((leftItem) => {
-            // When retrieving from DOM, we rely on the `handleDrop` already correctly setting the answer.
-            // Here, we re-collect it for robustness.
-            const rightItem = matchingQuestionBlockDiv.querySelector(`.right-item.matching-connected[data-value="${this.setQuizUserAnswers[quizId][matchingOptionIndex][leftItem.dataset.value]}"]`);
-            if (rightItem) {
-              currentPairs[leftItem.dataset.value] = rightItem.dataset.value;
-            }
-          });
 
-          if (Object.keys(currentPairs).length > 0) {
-            this.setQuizUserAnswers[quizId][matchingOptionIndex] = currentPairs;
-          } else {
-            // If no pairs, remove entry for this sub-question
-            if (this.setQuizUserAnswers[quizId][matchingOptionIndex] !== undefined) {
-              delete this.setQuizUserAnswers[quizId][matchingOptionIndex];
-            }
+        if (Object.keys(currentPairs).length > 0) {
+          this.setQuizUserAnswers[quizId][matchingOptionIndex] = currentPairs;
+        } else {
+          // If no pairs, remove entry for this sub-question
+          if (this.setQuizUserAnswers[quizId][matchingOptionIndex] !== undefined) {
+            delete this.setQuizUserAnswers[quizId][matchingOptionIndex];
           }
         }
-        break;
+      }
     }
 
     // After capturing answer, check if there are any answers for the entire quiz to set 'answered' class
@@ -2894,6 +2918,7 @@ async function loadQuizDataFiles() {
       "./lib/quiz_data_Example.json", // Changed order to put example first as it has more variety
       "./lib/quiz_geo_one.json",
       // './lib/quiz_English_data.json', // Removed as it's likely a duplicate or placeholder
+      "./lib/4.geo_quiz_new_format.json", // Ensure this is also loaded for testing mixed-choice
     ];
   }
 
