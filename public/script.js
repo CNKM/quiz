@@ -1571,18 +1571,18 @@ class QuizApp {
           // Highlight user's selections
           if (Array.isArray(userAnswer)) {
             if (userAnswer.includes(choiceKey)) {
-              choiceElement.classList.add("selected-choice");
+              //choiceElement.classList.add("selected-choice");
               // If user selected an incorrect choice
               if (!correctAnswer.includes(choiceKey)) {
-                choiceElement.classList.add("incorrect-choice");
+                //choiceElement.classList.add("incorrect-choice");
               }
             }
           } else {
             if (String(userAnswer) === String(choiceKey)) {
-              choiceElement.classList.add("selected-choice");
+             // choiceElement.classList.add("selected-choice");
               // If user selected an incorrect choice
               if (String(userAnswer) !== String(correctAnswer)) {
-                choiceElement.classList.add("incorrect-choice");
+                //choiceElement.classList.add("incorrect-choice");
               }
             }
           }
@@ -2313,18 +2313,18 @@ class QuizApp {
           // Highlight user's selections
           if (Array.isArray(userAnswer)) {
             if (userAnswer.includes(choiceKey)) {
-              choiceElement.classList.add("selected-choice");
+              //choiceElement.classList.add("selected-choice");
               // If user selected an incorrect choice
               if (!correctAnswer.includes(choiceKey)) {
-                choiceElement.classList.add("incorrect-choice");
+               // choiceElement.classList.add("incorrect-choice");
               }
             }
           } else {
             if (String(userAnswer) === String(choiceKey)) {
-              choiceElement.classList.add("selected-choice");
+             // choiceElement.classList.add("selected-choice");
               // If user selected an incorrect choice
               if (String(userAnswer) !== String(correctAnswer)) {
-                choiceElement.classList.add("incorrect-choice");
+                //choiceElement.classList.add("incorrect-choice");
               }
             }
           }
